@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arpit INR Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#2d3748}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;text-align:center}
+.header h1{font-size:1.5rem}
+.header p{opacity:.85;font-size:.9rem;margin-top:4px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:white;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+input,select{width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:.85rem}
+.btn{padding:10px 24px;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600}
+.btn-primary{background:#667eea;color:white}
+.btn-danger{background:#fc8181;color:white;font-size:.75rem;padding:3px 8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.stat-box{background:#f7fafc;border-radius:8px;padding:14px;text-align:center}
+.stat-box .val{font-size:2rem;font-weight:700}
+.stat-box .lbl{font-size:.8rem;color:#718096;margin-top:2px}
+.in-range{color:#38a169}.above-range{color:#e53e3e}.below-range{color:#dd6b20}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#f7fafc;padding:8px 10px;text-align:left;font-weight:600;color:#4a5568;border-bottom:2px solid #e2e8f0}
+td{padding:8px 10px;border-bottom:1px solid #f0f4f8}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.form-group{flex:1;min-width:120px}
+.form-group label{display:block;font-size:.8rem;font-weight:600;color:#4a5568;margin-bottom:4px}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:14px}
+.badge{padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:600}
+.badge-green{background:#c6f6d5;color:#276749}
+.badge-red{background:#fed7d7;color:#742a2a}
+.badge-orange{background:#feebc8;color:#7b341e}
+.hidden{display:none}
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{padding:8px 16px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;color:#718096;background:#f7fafc;border:none}
+.tab.active{background:#667eea;color:white}
+.status{padding:8px 16px;border-radius:6px;font-size:.85rem;margin:8px 0}
+.status.ok{background:#c6f6d5;color:#276749}
+.status.err{background:#fed7d7;color:#742a2a}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>&#x1F9E1; Arpit INR Tracker</h1>
+<p>MICS AVR 2007/25 &mdash; 19MM Aortic Mechanical Valve</p>
+</div>
+<div class="container">
+
+<div id="connect-card" class="card" style="text-align:center">
+<div class="section-title">&#x1F517; Connect to Google Sheet</div>
+<p style="color:#718096;font-size:.85rem;margin-bottom:12px">Web App URL is pre-filled &mdash; just click Connect</p>
+<input type="url" id="api-url" value="https://script.google.com/macros/s/AKfycbwc3iHSIBoku6blR_uJrOdG-WmMg9mH2hkD_iI_6Zu2ZEwBaHBkhGwoocLTLf3uVZSFOw/exec" style="max-width:600px;margin-bottom:10px">
+<br><button class="btn btn-primary" onclick="connect()">Connect</button>
+<div id="connect-status"></div>
+</div>
+
+<div id="main-app" class="hidden">
+<div class="card">
+<div class="section-title">&#x1F4CA; Current Status</div>
+<div class="grid">
+<div class="stat-box"><div class="val" id="last-inr">&mdash;</div><div class="lbl">Latest INR</div><div id="inr-badge" style="margin-top:6px"></div></div>
+<div class="stat-box"><div class="val" id="last-dose">&mdash;</div><div class="lbl">Warfarin Dose (mg)</div></div>
+<div class="stat-box"><div class="val" id="last-date">&mdash;</div><div class="lbl">Last Test Date</div></div>
+<div class="stat-box"><div class="val" id="in-range-pct">&mdash;</div><div class="lbl">Time in Range</div></div>
+</div>
+</div>
+
+<div class="tabs">
+<button class="tab active" onclick="showTab('log')">&#x1F4CB; INR Log</button>
+<button class="tab" onclick="showTab('add')">&#x2795; Add Reading</button>
+<button class="tab" onclick="showTab('settings')">&#x2699;&#xFE0F; Settings</button>
+</div>
+
+<div id="tab-log" class="card">
+<div class="section-title">&#x1F4CB; INR History (<span id="record-count">0</span> records)</div>
+<div style="overflow-x:auto">
+<table><thead><tr><th>Date</th><th>INR</th><th>Dose (mg)</th><th>Notes</th><th></th></tr></thead>
+<tbody id="inr-tbody"></tbody></table>
+</div>
+</div>
+
+<div id="tab-add" class="card hidden">
+<div class="section-title">&#x2795; Add INR Reading</div>
+<div class="form-row">
+<div class="form-group"><label>Date</label><input type="date" id="new-date"></div>
+<div class="form-group"><label>INR Value</label><input type="number" id="new-inr" step="0.01" min="0" max="15" placeholder="e.g. 2.5"></div>
+<div class="form-group"><label>Warfarin Dose (mg)</label><input type="number" id="new-dose" step="0.5" min="0" placeholder="e.g. 5"></div>
+</div>
+<div class="form-group" style="margin-top:10px"><label>Notes</label><input type="text" id="new-notes" placeholder="Any notes..."></div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="addINR()">Save Reading</button>
+<span id="add-status" style="margin-left:10px;font-size:.85rem"></span></div>
+</div>
+
+<div id="tab-settings" class="card hidden">
+<div class="section-title">&#x2699;&#xFE0F; Settings</div>
+<div class="form-row">
+<div class="form-group"><label>Patient Name</label><input type="text" id="s-name"></div>
+<div class="form-group"><label>Target INR Low</label><input type="number" id="s-low" step="0.1"></div>
+<div class="form-group"><label>Target INR High</label><input type="number" id="s-high" step="0.1"></div>
+</div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+<span id="settings-status" style="margin-left:10px;font-size:.85rem"></span></div>
+</div>
+</div>
+</div>
+
+<script>
+var API_URL='',settings={targetLow:2.5,targetHigh:3.5,patientName:'Arpit Mehta',warfDose:'5'},inrData=[];
+function connect(){API_URL=document.getElementById('api-url').value.trim();if(!API_URL)return;localStorage.setItem('inr_url',API_URL);fetchData();}
+function fetchData(){fetch(API_URL+'?action=getAll',{redirect:'follow'}).then(r=>r.json()).then(d=>{inrData=(d.inrLog||[]).sort((a,b)=>new Date(a[0])-new Date(b[0]));settings=Object.assign(settings,d.settings||{});document.getElementById('connect-card').classList.add('hidden');document.getElementById('main-app').classList.remove('hidden');renderAll();}).catch(e=>{document.getElementById('connect-status').innerHTML='<div class="status err">Could not connect: '+e.message+'</div>';});}
+function renderAll(){renderStats();renderTable();loadSettings();}
+function renderStats(){if(!inrData.length)return;var last=inrData[inrData.length-1],v=parseFloat(last[1]),low=parseFloat(settings.targetLow)||2.5,high=parseFloat(settings.targetHigh)||3.5;document.getElementById('last-inr').textContent=v.toFixed(2);document.getElementById('last-dose').textContent=last[2]||'&mdash;';document.getElementById('last-date').textContent=last[0]?new Date(last[0]).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'&mdash;';var cls='in-range',lbl='In Range',bc='badge-green';if(v<low){cls='below-range';lbl='Below Target';bc='badge-orange';}if(v>high){cls='above-range';lbl='Above Target';bc='badge-red';}document.getElementById('last-inr').className='val '+cls;document.getElementById('inr-badge').innerHTML='<span class="badge '+bc+'">'+lbl+'</span>';var ok=inrData.filter(r=>{var x=parseFloat(r[1]);return x>=low&&x<=high;}).length;document.getElementById('in-range-pct').textContent=Math.round(ok/inrData.length*100)+'%';}
+function renderTable(){var tbody=document.getElementById('inr-tbody'),low=parseFloat(settings.targetLow)||2.5,high=parseFloat(settings.targetHigh)||3.5;tbody.innerHTML='';document.getElementById('record-count').textContent=inrData.length;[...inrData].reverse().forEach(function(row){var v=parseFloat(row[1]),date=row[0]?new Date(row[0]).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'&mdash;',b=v<low?'<span class="badge badge-orange">Low</span>':v>high?'<span class="badge badge-red">High</span>':'<span class="badge badge-green">OK</span>',tr=document.createElement('tr');tr.innerHTML='<td>'+date+'</td><td>'+b+' '+v.toFixed(2)+'</td><td>'+(row[2]||'&mdash;')+'</td><td style="color:#718096;font-size:.8rem">'+(row[3]||'')+'</td><td><button class="btn btn-danger" onclick="deleteINR(''+row[4]+'')">&#x2715;</button></td>';tbody.appendChild(tr);});}
+function addINR(){var date=document.getElementById('new-date').value,val=document.getElementById('new-inr').value,dose=document.getElementById('new-dose').value,notes=document.getElementById('new-notes').value,ts=Date.now();if(!date||!val){document.getElementById('add-status').textContent='Date and INR required';return;}fetch(API_URL+'?action=addINR&date='+date+'&val='+val+'&dose='+dose+'&notes='+encodeURIComponent(notes)+'&ts='+ts,{redirect:'follow'}).then(r=>r.json()).then(d=>{if(d.ok){document.getElementById('add-status').textContent='Saved!';document.getElementById('new-date').value=new Date().toISOString().split('T')[0];document.getElementById('new-inr').value='';document.getElementById('new-dose').value='';document.getElementById('new-notes').value='';fetchData();}else{document.getElementById('add-status').textContent='Error: '+(d.error||'Unknown');}}).catch(e=>{document.getElementById('add-status').textContent=e.message;});}
+function deleteINR(ts){if(!confirm('Delete this record?'))return;fetch(API_URL+'?action=deleteINR&ts='+ts,{redirect:'follow'}).then(r=>r.json()).then(d=>{if(d.ok)fetchData();});}
+function loadSettings(){document.getElementById('s-name').value=settings.patientName||'';document.getElementById('s-low').value=settings.targetLow||2.5;document.getElementById('s-high').value=settings.targetHigh||3.5;}
+function saveSettings(){settings.patientName=document.getElementById('s-name').value;settings.targetLow=document.getElementById('s-low').value;settings.targetHigh=document.getElementById('s-high').value;fetch(API_URL+'?action=saveSettings&settings='+encodeURIComponent(JSON.stringify(settings)),{redirect:'follow'}).then(r=>r.json()).then(d=>{if(d.ok){document.getElementById('settings-status').textContent='Saved!';renderStats();setTimeout(()=>{document.getElementById('settings-status').textContent='';},2000);}});}
+function showTab(t){['log','add','settings'].forEach(function(x){document.getElementById('tab-'+x).classList.add('hidden');});document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('.tab').forEach(function(b,i){b.classList.remove('active');});document.querySelectorAll('.tab')[['log','add','settings'].indexOf(t)].classList.add('active');}
+window.onload=function(){document.getElementById('new-date').value=new Date().toISOString().split('T')[0];var saved=localStorage.getItem('inr_url');if(saved){document.getElementById('api-url').value=saved;connect();}};
+</script>
+</body>
+</html>
