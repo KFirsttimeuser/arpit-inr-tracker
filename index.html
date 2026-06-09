@@ -17,7 +17,7 @@
   body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
 
   /* SETUP SCREEN */
-  #setupScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px}
+  #setupScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:none;align-items:center;justify-content:center;padding:24px}
   .setup-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:480px;width:100%}
   .setup-logo{display:flex;align-items:center;gap:12px;margin-bottom:24px}
   .setup-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
@@ -691,9 +691,42 @@ function showSetup() {
 }
 
 function reconnect() {
+  connectFromSettings();
+}
+
+async function connectFromSettings() {
   const url = document.getElementById('settingsScriptUrl').value.trim();
-  if (url) { document.getElementById('scriptUrl').value = url; }
-  showSetup();
+  const statusEl = document.getElementById('settingsConnectStatus');
+  if (!url || !url.includes('script.google.com')) {
+    statusEl.textContent = '❌ Please paste a valid Apps Script URL';
+    statusEl.style.color = 'var(--danger)'; return;
+  }
+  statusEl.textContent = '⏳ Testing connection…'; statusEl.style.color = 'var(--muted)';
+  try {
+    const testUrl = new URL(url);
+    testUrl.searchParams.set('action', 'getAll');
+    const res = await fetch(testUrl.toString());
+    const data = await res.json();
+    SCRIPT_URL = url;
+    localStorage.setItem('inrScriptUrl', url);
+    offlineMode = false;
+    document.getElementById('syncBar').style.display = 'flex';
+    statusEl.textContent = '✅ Connected! Syncing data…'; statusEl.style.color = 'var(--good)';
+    loadSettings();
+    // If sheets is empty, push seed data up
+    if (!data.inrLog || data.inrLog.length === 0) {
+      statusEl.textContent = '⬆️ Uploading history to Sheets…'; statusEl.style.color = 'var(--warn)';
+      let count = 0;
+      for (const r of ARPIT_SEED_INR) {
+        try { await api({action:'addINR',date:r.date,val:r.val,dose:r.dose||'',notes:r.notes||'',ts:r.ts}); count++; } catch(e){}
+      }
+      statusEl.textContent = `✅ Done! Uploaded ${count} readings to Google Sheets.`; statusEl.style.color = 'var(--good)';
+    }
+    await loadAll();
+  } catch(e) {
+    statusEl.textContent = '❌ Could not connect: ' + e.message;
+    statusEl.style.color = 'var(--danger)';
+  }
 }
 
 function launchApp() {
@@ -709,6 +742,7 @@ function launchApp() {
   document.getElementById('nextDoseDate').value = toDateStr(new Date(now.getTime()+86400000));
   loadSettings();
   renderVKGuide();
+  // loadAll() called after launchApp from window.load depending on mode
   loadAll();
 }
 
@@ -727,8 +761,8 @@ function loadSettings() {
   document.getElementById('headerSub').textContent =
     `${settings.patientName||'Arpit'} · MICS AVR · Warf-${settings.warfDose||'?'}`;
   const info = document.getElementById('sheetConnectedInfo');
-  if (offlineMode) info.textContent = '⚠️ Offline mode — data saved to this browser only.';
-  else info.innerHTML = `✅ Connected. Data saved to Google Sheets permanently. <a href="${SCRIPT_URL.replace('/exec','/edit')}" target="_blank" style="color:var(--accent)">Open Sheet →</a>`;
+  if (!SCRIPT_URL || offlineMode) info.innerHTML = '📱 <strong>Running locally</strong> — all history visible. Optionally connect Google Sheets below for cloud sync.';
+  else info.innerHTML = `✅ <strong>Connected to Google Sheets</strong> — data syncs across all family devices. <a href="https://docs.google.com/spreadsheets" target="_blank" style="color:var(--accent)">Open Sheets →</a>`;
 }
 
 async function saveSettings() {
@@ -1112,10 +1146,25 @@ document.addEventListener('click',e=>{
     document.getElementById('foodSearchResults').classList.remove('open');
 });
 
-// Auto-launch if URL already saved
+// Always launch immediately with seed data visible — Google Sheets is optional
 window.addEventListener('load', () => {
-  if (localStorage.getItem('inrScriptUrl')) loadSavedUrl();
-  else if (localStorage.getItem('inrOfflineMode')==='true') useOfflineMode();
+  // Seed Arpit's historical data into local store if this is first visit
+  const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
+  if (!local.inrLog.length) {
+    local.inrLog = ARPIT_SEED_INR;
+    localStorage.setItem('inrOfflineData', JSON.stringify(local));
+  }
+
+  // Always start in offline mode (uses localStorage with seed data)
+  offlineMode = true;
+  launchApp();
+
+  // If a Sheets URL was previously saved, try to sync in background
+  if (SCRIPT_URL) {
+    offlineMode = false;
+    document.getElementById('syncBar').style.display = 'flex';
+    loadAll();
+  }
 });
 </script>
 </body>
