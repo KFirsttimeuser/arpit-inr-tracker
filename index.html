@@ -5,241 +5,1118 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arpit INR Tracker</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#2d3748}
-.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;text-align:center}
-.header h1{font-size:1.5rem}
-.header p{opacity:.85;font-size:.9rem;margin-top:4px}
-.container{max-width:900px;margin:0 auto;padding:16px}
-.card{background:white;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,select{width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:.85rem}
-.btn{padding:10px 24px;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600}
-.btn-primary{background:#667eea;color:white}
-.btn-danger{background:#fc8181;color:white;font-size:.75rem;padding:3px 8px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:600px){.grid{grid-template-columns:1fr}}
-.stat-box{background:#f7fafc;border-radius:8px;padding:14px;text-align:center}
-.stat-box .val{font-size:2rem;font-weight:700}
-.stat-box .lbl{font-size:.8rem;color:#718096;margin-top:2px}
-.in-range{color:#38a169}.above-range{color:#e53e3e}.below-range{color:#dd6b20}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-th{background:#f7fafc;padding:8px 10px;text-align:left;font-weight:600;color:#4a5568;border-bottom:2px solid #e2e8f0}
-td{padding:8px 10px;border-bottom:1px solid #f0f4f8}
-.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.form-group{flex:1;min-width:120px}
-.form-group label{display:block;font-size:.8rem;font-weight:600;color:#4a5568;margin-bottom:4px}
-.section-title{font-size:1.1rem;font-weight:700;margin-bottom:14px}
-.badge{padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:600}
-.badge-green{background:#c6f6d5;color:#276749}
-.badge-red{background:#fed7d7;color:#742a2a}
-.badge-orange{background:#feebc8;color:#7b341e}
-.hidden{display:none}
-.tabs{display:flex;gap:4px;margin-bottom:16px}
-.tab{padding:8px 16px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:600;color:#718096;background:#f7fafc;border:none}
-.tab.active{background:#667eea;color:white}
-.status{padding:8px 16px;border-radius:6px;font-size:.85rem;margin:8px 0}
-.status.ok{background:#c6f6d5;color:#276749}
-.status.err{background:#fed7d7;color:#742a2a}
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;--border:#e2e8f0;
+    --text:#1a202c;--muted:#718096;--accent:#3b82f6;--accent-l:#eff6ff;
+    --danger:#ef4444;--danger-l:#fef2f2;--warn:#f59e0b;--warn-l:#fffbeb;
+    --good:#10b981;--good-l:#ecfdf5;
+    --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+  /* SETUP SCREEN */
+  #setupScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px}
+  .setup-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:480px;width:100%}
+  .setup-logo{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  .setup-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+  .setup-title{font-size:20px;font-weight:600}
+  .setup-sub{font-size:13px;color:var(--muted)}
+  .step{margin-bottom:20px}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--accent);color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-right:8px;flex-shrink:0}
+  .step-title{font-size:14px;font-weight:600;display:flex;align-items:center;margin-bottom:6px}
+  .step-body{font-size:13px;color:var(--muted);line-height:1.6;padding-left:30px}
+  .step-body code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:var(--mono);font-size:12px;color:var(--text)}
+  .url-input-wrap{padding-left:30px;margin-top:8px;display:flex;gap:8px}
+  #scriptUrl{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--mono)}
+  #scriptUrl:focus{outline:none;border-color:var(--accent)}
+  .connect-btn{padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .connect-btn:hover{background:#2563eb}
+  .connect-status{padding-left:30px;margin-top:8px;font-size:13px}
+  .skip-link{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
+  .skip-link a{color:var(--accent);cursor:pointer;text-decoration:underline}
+  .gs-link{display:inline-flex;align-items:center;gap:5px;background:#1a73e8;color:#fff;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;margin-top:6px}
+
+  /* SYNC BAR */
+  #syncBar{background:var(--surface);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+  .sync-indicator{display:flex;align-items:center;gap:6px}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+  .sync-dot.syncing{background:var(--warn);animation:pulse 1s infinite}
+  .sync-dot.error{background:var(--danger)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  /* HEADER */
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .logo-text{font-size:15px;font-weight:600;line-height:1.2}
+  .logo-sub{font-size:11px;color:var(--muted);font-weight:400}
+  .date-display{font-family:var(--mono);font-size:13px;color:var(--muted)}
+
+  /* TABS */
+  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
+  .tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab:hover:not(.active){color:var(--text)}
+
+  /* MAIN */
+  main{max-width:800px;margin:0 auto;padding:24px 16px}
+  .panel{display:none}
+  .panel.active{display:block}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+  .card-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:16px}
+
+  /* GAUGE */
+  .inr-gauge-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .gauge-container{position:relative;width:160px;height:90px;flex-shrink:0}
+  .gauge-svg{width:160px;height:90px}
+  .gauge-val{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:28px;font-weight:500;text-align:center;line-height:1}
+  .gauge-label{font-size:11px;color:var(--muted);text-align:center;margin-top:2px}
+  .inr-status-block{flex:1;min-width:180px}
+  .inr-status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:10px}
+  .badge-dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.7}
+  .status-low{background:var(--warn-l);color:#b45309}
+  .status-ok{background:var(--good-l);color:#065f46}
+  .status-high{background:var(--danger-l);color:#991b1b}
+  .inr-range-note{font-size:13px;color:var(--muted);line-height:1.5}
+  .inr-range-note strong{color:var(--text)}
+
+  /* FORMS */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .form-row.single{grid-template-columns:1fr}
+  label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+  input[type="number"],input[type="date"],input[type="text"],select,textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:60px}
+  .btn{padding:9px 18px;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#2563eb}
+  .btn-primary:disabled{background:#93c5fd;cursor:not-allowed}
+  .btn-danger{background:var(--danger-l);color:var(--danger)}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .btn-ghost{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+  .btn-ghost:hover{background:var(--border)}
+
+  /* VK */
+  .vk-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:12px;font-weight:500}
+  .vk-high{background:#fee2e2;color:#b91c1c}
+  .vk-med{background:#fef3c7;color:#92400e}
+  .vk-low{background:#d1fae5;color:#065f46}
+  .vk-summary{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .vk-meter-wrap{flex:1;min-width:200px}
+  .vk-meter-track{height:10px;background:var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+  .vk-meter-fill{height:100%;border-radius:10px;transition:width .4s ease}
+  .vk-total-display{font-family:var(--mono);font-size:22px;font-weight:500;flex-shrink:0}
+
+  /* TABLES */
+  .food-table{width:100%;border-collapse:collapse;font-size:13px}
+  .food-table th{text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .food-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+  .food-table tr:last-child td{border-bottom:none}
+  .food-table tr:hover td{background:var(--surface2)}
+
+  /* FOOD SEARCH */
+  .food-search-results{border:1.5px solid var(--border);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;background:var(--surface);display:none}
+  .food-search-results.open{display:block}
+  .food-result-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .food-result-item:last-child{border-bottom:none}
+  .food-result-item:hover{background:var(--accent-l)}
+
+  /* HISTORY */
+  .history-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);margin-bottom:6px}
+  .history-date{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:90px}
+  .history-inr{font-family:var(--mono);font-size:18px;font-weight:500;min-width:48px}
+  .history-warf{font-size:13px;color:var(--muted);flex:1}
+  .history-note{font-size:12px;color:var(--muted);font-style:italic;flex:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ALERTS */
+  .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.5;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+  .alert-warn{background:var(--warn-l);border-left:3px solid var(--warn)}
+  .alert-info{background:var(--accent-l);border-left:3px solid var(--accent)}
+  .alert-good{background:var(--good-l);border-left:3px solid var(--good)}
+  .alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+  /* MACROS */
+  .macro-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .macro-pill{flex:1;min-width:90px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+  .macro-val{font-family:var(--mono);font-size:18px;font-weight:500}
+  .macro-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+
+  /* EMPTY */
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+  .empty-icon{font-size:36px;margin-bottom:10px}
+
+  /* LOADING */
+  .loading-overlay{text-align:center;padding:40px;color:var(--muted)}
+  .spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media(max-width:500px){
+    .form-row{grid-template-columns:1fr}
+    .inr-gauge-wrap{flex-direction:column}
+    .gauge-container{margin:0 auto}
+  }
 </style>
 </head>
 <body>
-<div class="header">
-<h1>&#x1F9E1; Arpit INR Tracker</h1>
-<p>MICS AVR 2007/25 &mdash; 19MM Aortic Mechanical Valve</p>
-</div>
-<div class="container">
 
-<div id="connect-card" class="card" style="text-align:center">
-<div class="section-title">&#x1F517; Connect to Google Sheet</div>
-<p style="color:#718096;font-size:.85rem;margin-bottom:12px">Web App URL is pre-filled &mdash; just click Connect</p>
-<input type="url" id="api-url" value="https://script.google.com/macros/s/AKfycbwc3iHSIBoku6blR_uJrOdG-WmMg9mH2hkD_iI_6Zu2ZEwBaHBkhGwoocLTLf3uVZSFOw/exec" style="max-width:600px;margin-bottom:10px">
-<br><button class="btn btn-primary" onclick="connect()">Connect</button>
-<div id="connect-status"></div>
-</div>
+<!-- SETUP SCREEN -->
+<div id="setupScreen">
+  <div class="setup-card">
+    <div class="setup-logo">
+      <div class="setup-logo-icon">💊</div>
+      <div>
+        <div class="setup-title">Arpit INR Tracker</div>
+        <div class="setup-sub">Permanent cloud storage via Google Sheets</div>
+      </div>
+    </div>
 
-<div id="main-app" class="hidden">
-<div class="card">
-<div class="section-title">&#x1F4CA; Current Status</div>
-<div class="grid">
-<div class="stat-box"><div class="val" id="last-inr">&mdash;</div><div class="lbl">Latest INR</div><div id="inr-badge" style="margin-top:6px"></div></div>
-<div class="stat-box"><div class="val" id="last-dose">&mdash;</div><div class="lbl">Warfarin Dose (mg)</div></div>
-<div class="stat-box"><div class="val" id="last-date">&mdash;</div><div class="lbl">Last Test Date</div></div>
-<div class="stat-box"><div class="val" id="in-range-pct">&mdash;</div><div class="lbl">Time in Range</div></div>
-</div>
-</div>
+    <div class="step">
+      <div class="step-title"><span class="step-num">1</span>Create a Google Sheet</div>
+      <div class="step-body">
+        Open Google Sheets and create a new blank spreadsheet. Name it <code>Arpit INR Tracker</code>. Share it with family members (View or Edit access).<br>
+        <a class="gs-link" href="https://sheets.new" target="_blank">📊 Create Google Sheet →</a>
+      </div>
+    </div>
 
-<div class="tabs">
-<button class="tab active" onclick="showTab('log')">&#x1F4CB; INR Log</button>
-<button class="tab" onclick="showTab('add')">&#x2795; Add Reading</button>
-<button class="tab" onclick="showTab('settings')">&#x2699;&#xFE0F; Settings</button>
-</div>
+    <div class="step">
+      <div class="step-title"><span class="step-num">2</span>Add the backend script</div>
+      <div class="step-body">
+        In your Sheet, go to <code>Extensions → Apps Script</code>. Delete any existing code, paste the contents of <code>apps-script-backend.gs</code> (downloaded below), then click <strong>Save</strong> and <strong>Deploy → New deployment → Web app</strong>. Set "Who has access" to <strong>Anyone</strong>. Copy the deployment URL.
+      </div>
+    </div>
 
-<div id="tab-log" class="card">
-<div class="section-title">&#x1F4CB; INR History (<span id="record-count">0</span> records)</div>
-<div style="overflow-x:auto">
-<table><thead><tr><th>Date</th><th>INR</th><th>Dose (mg)</th><th>Notes</th><th></th></tr></thead>
-<tbody id="inr-tbody"></tbody></table>
-</div>
-</div>
+    <div class="step">
+      <div class="step-title"><span class="step-num">3</span>Paste your Web App URL below</div>
+      <div class="url-input-wrap">
+        <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/…/exec">
+        <button class="connect-btn" onclick="connectScript()">Connect</button>
+      </div>
+      <div class="connect-status" id="connectStatus"></div>
+    </div>
 
-<div id="tab-add" class="card hidden">
-<div class="section-title">&#x2795; Add INR Reading</div>
-<div class="form-row">
-<div class="form-group"><label>Date</label><input type="date" id="new-date"></div>
-<div class="form-group"><label>INR Value</label><input type="number" id="new-inr" step="0.01" min="0" max="15" placeholder="e.g. 2.5"></div>
-<div class="form-group"><label>Warfarin Dose (mg)</label><input type="number" id="new-dose" step="0.5" min="0" placeholder="e.g. 5"></div>
-</div>
-<div class="form-group" style="margin-top:10px"><label>Notes</label><input type="text" id="new-notes" placeholder="Any notes..."></div>
-<div style="margin-top:14px"><button class="btn btn-primary" onclick="addINR()">Save Reading</button>
-<span id="add-status" style="margin-left:10px;font-size:.85rem"></span></div>
+    <div class="skip-link">
+      Already connected? <a onclick="loadSavedUrl()">Load saved URL</a> &nbsp;·&nbsp;
+      <a onclick="useOfflineMode()">Use offline mode (no cloud)</a>
+    </div>
+  </div>
 </div>
 
-<div id="tab-settings" class="card hidden">
-<div class="section-title">&#x2699;&#xFE0F; Settings</div>
-<div class="form-row">
-<div class="form-group"><label>Patient Name</label><input type="text" id="s-name"></div>
-<div class="form-group"><label>Target INR Low</label><input type="number" id="s-low" step="0.1"></div>
-<div class="form-group"><label>Target INR High</label><input type="number" id="s-high" step="0.1"></div>
+<!-- SYNC BAR -->
+<div id="syncBar" style="display:none">
+  <div class="sync-indicator">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncStatus">Connected to Google Sheets</span>
+  </div>
+  <span id="lastSyncTime" style="font-size:11px"></span>
 </div>
-<div style="margin-top:14px"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-<span id="settings-status" style="margin-left:10px;font-size:.85rem"></span></div>
+
+<header style="display:none" id="appHeader">
+  <div class="logo">
+    <div class="logo-icon">💊</div>
+    <div>
+      <div class="logo-text">INR Tracker</div>
+      <div class="logo-sub" id="headerSub">Arpit Mehta · MICS AVR · Warf-5</div>
+    </div>
+  </div>
+  <div class="date-display" id="headerDate"></div>
+</header>
+
+<div class="tabs" id="appTabs" style="display:none">
+  <div class="tab active" onclick="switchTab('today')">Today</div>
+  <div class="tab" onclick="switchTab('log-inr')">Log INR</div>
+  <div class="tab" onclick="switchTab('food')">Food Log</div>
+  <div class="tab" onclick="switchTab('history')">History</div>
+  <div class="tab" onclick="switchTab('vkguide')">Vitamin K Guide</div>
+  <div class="tab" onclick="switchTab('settings')">Settings</div>
 </div>
-</div>
-</div>
+
+<main id="appMain" style="display:none">
+
+  <!-- TODAY -->
+  <div class="panel active" id="panel-today">
+    <div class="card" id="inr-status-card">
+      <div class="card-title">Current INR Status</div>
+      <div id="risingAlert" class="alert alert-warn" style="display:none;margin-bottom:14px">
+        <span class="alert-icon">⚠️</span><div id="risingAlertText"></div>
+      </div>
+      <div class="inr-gauge-wrap">
+        <div class="gauge-container">
+          <svg class="gauge-svg" viewBox="0 0 160 90">
+            <path d="M 20 85 A 60 60 0 0 1 140 85" fill="none" stroke="#e2e8f0" stroke-width="14" stroke-linecap="round"/>
+            <path id="gaugeArc" d="M 20 85 A 60 60 0 0 1 140 85" fill="none" stroke="#10b981" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 200"/>
+            <text x="14" y="88" font-size="9" fill="#9ca3af" font-family="monospace">1.0</text>
+            <text x="71" y="30" font-size="9" fill="#9ca3af" font-family="monospace" text-anchor="middle">2.5</text>
+            <text x="134" y="88" font-size="9" fill="#9ca3af" font-family="monospace" text-anchor="end">4.0</text>
+          </svg>
+          <div class="gauge-val" id="gaugeVal">—</div>
+          <div class="gauge-label">INR</div>
+        </div>
+        <div class="inr-status-block">
+          <div class="inr-status-badge status-ok" id="inrBadge"><span class="badge-dot"></span><span id="inrBadgeText">Loading…</span></div>
+          <div class="inr-range-note">
+            Target: <strong id="targetDisplay">2.5 – 3.5</strong><br>
+            Dose: <strong id="warfDoseDisplay">—</strong><br>
+            Last logged: <strong id="lastLoggedDisplay">—</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Vitamin K</div>
+      <div class="vk-summary">
+        <div>
+          <div class="vk-total-display" id="todayVKTotal">0 <span style="font-size:14px;color:var(--muted)">mcg</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">of <span id="vkGoalDisplay">90</span> mcg goal</div>
+        </div>
+        <div class="vk-meter-wrap">
+          <div style="font-size:12px;color:var(--muted)">Daily Vitamin K</div>
+          <div class="vk-meter-track"><div class="vk-meter-fill" id="vkMeterFill" style="width:0%;background:var(--good)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px"><span>0</span><span>Goal</span><span>2×</span></div>
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-top:14px;margin-bottom:0">
+        <span class="alert-icon">💡</span>
+        <div>Keep Vitamin K <strong>consistent</strong> day to day — not necessarily low. Sudden changes destabilise INR.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Nutrition</div>
+      <div class="macro-row">
+        <div class="macro-pill"><div class="macro-val" id="macroKcal">0</div><div class="macro-lbl">Calories</div></div>
+        <div class="macro-pill"><div class="macro-val" id="macroCarb">0g</div><div class="macro-lbl">Carbs</div></div>
+        <div class="macro-pill"><div class="macro-val" id="macroProtein">0g</div><div class="macro-lbl">Protein</div></div>
+        <div class="macro-pill"><div class="macro-val" id="macroFat">0g</div><div class="macro-lbl">Fat</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Food</div>
+      <div id="todayFoodList"><div class="empty-state"><div class="empty-icon">🥗</div><div>No foods logged today.</div></div></div>
+    </div>
+  </div>
+
+  <!-- LOG INR -->
+  <div class="panel" id="panel-log-inr">
+    <div class="card">
+      <div class="card-title">Log INR Reading</div>
+      <div class="form-row">
+        <div><label>INR Value</label><input type="number" id="inrValue" step="0.1" min="0.5" max="10" placeholder="e.g. 2.4"></div>
+        <div><label>Date</label><input type="date" id="inrDate"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Warfarin Dose (mg)</label><input type="number" id="warfDose" step="0.5" min="0" placeholder="e.g. 5.0"></div>
+        <div><label>Next Check Date</label><input type="date" id="nextDoseDate"></div>
+      </div>
+      <div class="form-row single">
+        <div><label>Notes</label><textarea id="inrNotes" placeholder="Symptoms, diet changes, missed doses…"></textarea></div>
+      </div>
+      <button class="btn btn-primary" id="saveInrBtn" onclick="logINR()">Save to Google Sheets</button>
+      <span id="inrSaveMsg" style="font-size:13px;color:var(--good);margin-left:12px"></span>
+    </div>
+    <div class="card">
+      <div class="card-title">INR Guide for Mechanical Valve (2.5–3.5)</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div><strong>Below 2.5</strong> — Clot risk on mechanical valve. Contact doctor immediately.</div></div>
+        <div class="alert alert-good"><span class="alert-icon">✅</span><div><strong>2.5–3.5</strong> — In range. Good anticoagulation for MICS AVR.</div></div>
+        <div class="alert alert-warn" style="border-color:var(--danger)"><span class="alert-icon">🔴</span><div><strong>Above 3.5</strong> — Bleeding risk. Contact doctor. Above 4.5 seek urgent care.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOD LOG -->
+  <div class="panel" id="panel-food">
+    <div class="card">
+      <div class="card-title">Add Food</div>
+      <div class="form-row">
+        <div style="position:relative">
+          <label>Search Food</label>
+          <input type="text" id="foodSearch" placeholder="spinach, chicken, dal…" oninput="searchFood()" autocomplete="off">
+          <div class="food-search-results" id="foodSearchResults"></div>
+        </div>
+        <div><label>Meal</label><select id="mealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></div>
+      </div>
+      <div id="selectedFoodDetails" style="display:none">
+        <div class="form-row">
+          <div><label>Quantity</label><input type="number" id="foodQty" step="0.5" min="0.1" value="1" oninput="updateFoodPreview()"></div>
+          <div><label>Unit</label><select id="foodUnit" onchange="updateFoodPreview()"><option>serving</option><option>grams</option><option>cup</option><option>tbsp</option><option>oz</option><option>piece</option></select></div>
+        </div>
+        <div id="foodPreviewCard" style="background:var(--accent-l);border:1.5px solid #bfdbfe;border-radius:8px;padding:12px;font-size:13px;margin-bottom:12px">
+          <div style="font-weight:600;margin-bottom:6px" id="previewName">–</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;color:var(--muted)">
+            <span>🥬 VK: <strong id="previewVK">–</strong> mcg</span>
+            <span>🔥 <strong id="previewKcal">–</strong> kcal</span>
+            <span>🍞 <strong id="previewCarb">–</strong>g carbs</span>
+            <span>💪 <strong id="previewProt">–</strong>g protein</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-row single"><div><label>Date</label><input type="date" id="foodDate"></div></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-primary" id="addFoodBtn" onclick="addFood()" disabled>Save to Sheets</button>
+        <button class="btn btn-ghost" onclick="clearFoodForm()">Clear</button>
+        <span id="addFoodMsg" style="font-size:13px;color:var(--good)"></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Today's Log</div>
+      <div id="foodLogList"><div class="empty-state"><div class="empty-icon">🍽️</div><div>Nothing logged yet today.</div></div></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="panel" id="panel-history">
+    <div class="card">
+      <div class="card-title">INR Trend — All Time</div>
+      <canvas id="inrChart" height="130"></canvas>
+      <div style="margin-top:16px" id="inrHistoryList"><div class="loading-overlay"><div class="spinner"></div><div>Loading…</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Vitamin K — Past 7 Days</div>
+      <canvas id="vkChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <!-- VK GUIDE -->
+  <div class="panel" id="panel-vkguide">
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ️</span>
+      <div>On warfarin, aim for <strong>consistent</strong> Vitamin K intake — not avoidance. Sudden spikes or drops cause INR instability.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔴 High Vitamin K (&gt;100 mcg/serving) — Keep Consistent</div>
+      <table class="food-table"><thead><tr><th>Food</th><th>Serving</th><th>VK mcg</th><th></th></tr></thead><tbody id="vkHighTable"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">🟡 Medium Vitamin K (20–100 mcg)</div>
+      <table class="food-table"><thead><tr><th>Food</th><th>Serving</th><th>VK mcg</th><th></th></tr></thead><tbody id="vkMedTable"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">🟢 Low Vitamin K (&lt;20 mcg) — Freely Eat</div>
+      <table class="food-table"><thead><tr><th>Food</th><th>Serving</th><th>VK mcg</th><th></th></tr></thead><tbody id="vkLowTable"></tbody></table>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel" id="panel-settings">
+    <div class="card">
+      <div class="card-title">☁️ Google Sheets Connection</div>
+      <div id="sheetConnectedInfo" style="font-size:13px;color:var(--muted);margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="settingsScriptUrl" placeholder="Apps Script URL" style="flex:1;min-width:200px;font-size:12px;font-family:var(--mono)">
+        <button class="btn btn-primary btn-sm" onclick="reconnect()">Reconnect</button>
+        <button class="btn btn-ghost btn-sm" onclick="showSetup()">Setup Guide</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">INR Target Range</div>
+      <div class="form-row">
+        <div><label>Target Low</label><input type="number" id="targetLow" step="0.1" value="2.5"></div>
+        <div><label>Target High</label><input type="number" id="targetHigh" step="0.1" value="3.5"></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">2.5–3.5 is standard for mechanical aortic valve (AHA/ACC). Follow your doctor's advice.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Patient Info</div>
+      <div class="form-row">
+        <div><label>Name</label><input type="text" id="patientName" value="Arpit Mehta"></div>
+        <div><label>Current Warfarin Dose (mg)</label><input type="number" id="currentWarf" step="0.5" value="5"></div>
+      </div>
+      <div class="form-row single">
+        <div><label>Vitamin K Daily Goal (mcg)</label><input type="number" id="vkGoalInput" value="90"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">Save Settings to Sheets</button>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">📤 Backup / Restore</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+        Your data lives in <strong>Google Sheets</strong> permanently. The sheet itself is the backup — share it with family via Google Drive. For an extra local backup:
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="exportJSON()">📥 Download JSON backup</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">📤 Restore from JSON</button>
+      </div>
+    </div>
+    <div style="margin-top:20px;font-size:12px;color:var(--muted);line-height:1.7">
+      <strong>Disclaimer:</strong> For personal tracking only. Always follow your doctor's instructions. Do not make dosing decisions based on this app.
+    </div>
+  </div>
+</main>
 
 <script>
-var API_URL = '', inrData = [];
-var settings = {targetLow:2.5, targetHigh:3.5, patientName:'Arpit Mehta', warfDose:'5'};
+// ═══════════════════════════════════════════════
+//  FOOD DATABASE
+// ═══════════════════════════════════════════════
+const FOODS = [
+  ["Kale (cooked)","½ cup",531,18,4,1,0],["Swiss chard (cooked)","½ cup",287,18,4,2,0],
+  ["Spinach (cooked)","½ cup",444,21,3,3,0],["Spinach (raw)","1 cup",145,7,1,1,0],
+  ["Collard greens (cooked)","½ cup",530,25,5,2,0],["Broccoli (cooked)","½ cup",110,27,6,2,0],
+  ["Brussels sprouts","½ cup",150,28,6,2,0],["Cabbage (raw)","1 cup",68,22,5,1,0],
+  ["Parsley (fresh)","¼ cup",246,5,1,0,0],["Cilantro","¼ cup",62,1,0,0,0],
+  ["Green onion/scallion","¼ cup",103,8,2,1,0],["Beet greens (cooked)","½ cup",349,19,4,2,0],
+  ["Mustard greens","½ cup",419,11,2,2,0],["Endive (raw)","1 cup",116,9,2,1,0],
+  ["Lettuce, Romaine","1 cup",57,8,2,1,0],["Lettuce, Iceberg","1 cup",13,10,2,1,0],
+  ["Asparagus","4 spears",48,13,3,1,0],["Edamame","½ cup",26,94,8,9,4],
+  ["Green peas","½ cup",21,62,11,4,0],["Cucumber (with peel)","1 cup",17,16,4,1,0],
+  ["Cauliflower","½ cup",9,14,3,1,0],["Celery","1 stalk",29,6,1,0,0],
+  ["Carrot","1 medium",8,25,6,1,0],["Avocado","½ fruit",21,120,6,1,11],
+  ["Green bell pepper","1 cup",11,30,7,1,0],["Blueberries","½ cup",14,42,11,1,0],
+  ["Soybean oil","1 tbsp",25,120,0,0,14],["Canola oil","1 tbsp",10,124,0,0,14],
+  ["Chicken breast","3 oz",0,140,0,26,3],["Salmon","3 oz",0,175,0,19,10],
+  ["Egg","1 large",0,70,0,6,5],["White rice (cooked)","½ cup",0,103,23,2,0],
+  ["Brown rice (cooked)","½ cup",1,108,22,2,1],["Whole wheat bread","1 slice",1,80,15,3,1],
+  ["Oatmeal (cooked)","½ cup",0,83,14,3,2],["Banana","1 medium",0,89,23,1,0],
+  ["Apple","1 medium",3,95,25,0,0],["Orange","1 medium",0,62,15,1,0],
+  ["Mango","½ cup",3,60,15,1,0],["Milk (whole)","1 cup",0,149,12,8,8],
+  ["Yogurt (plain)","½ cup",0,77,6,4,4],["Paneer","½ cup",0,120,2,9,9],
+  ["Dal (lentils, cooked)","½ cup",2,115,20,9,0],["Chana dal","½ cup",1,130,22,9,2],
+  ["Toor dal","½ cup",1,120,21,8,0],["Roti (wheat)","1 piece",1,100,18,3,2],
+  ["Potato (boiled)","1 medium",2,87,20,2,0],["Sweet potato","½ cup",2,59,14,1,0],
+  ["Tomato","1 medium",9,22,5,1,0],["Onion","½ cup",0,32,7,1,0],
+  ["Garlic","1 clove",0,4,1,0,0],["Tofu (firm)","½ cup",3,94,2,10,5],
+  ["Almonds","1 oz",0,164,6,6,14],["Walnuts","1 oz",1,185,4,4,18],
+  ["Olive oil","1 tbsp",8,119,0,0,14],["Ghee","1 tsp",0,42,0,0,5],
+  ["Coffee (black)","1 cup",0,2,0,0,0],["Tea (black)","1 cup",0,2,0,0,0],
+  ["Orange juice","½ cup",0,56,13,1,0]
+];
 
-function connect() {
-  API_URL = document.getElementById('api-url').value.trim();
-  if (!API_URL) return;
-  localStorage.setItem('inr_url', API_URL);
-  fetchData();
-}
+// Historical seed data for first-time import
+const ARPIT_SEED_INR = [
+  {date:'2025-08-11',val:1.32,dose:3,notes:'Started on Warf-3 → upgraded to Warf-5',ts:'s1'},
+  {date:'2025-08-18',val:2.39,dose:5,notes:'Warf-5',ts:'s2'},
+  {date:'2025-08-25',val:2.12,dose:5,notes:'Warf-5',ts:'s3'},
+  {date:'2025-09-01',val:1.76,dose:5,notes:'Warf-5 → upgraded to Warf-6',ts:'s4'},
+  {date:'2025-09-08',val:2.3,dose:6,notes:'Warf-6',ts:'s5'},
+  {date:'2025-09-15',val:2.67,dose:6,notes:'Warf-6',ts:'s6'},
+  {date:'2025-09-22',val:2.15,dose:6,notes:'Warf-6',ts:'s7'},
+  {date:'2025-09-29',val:1.99,dose:6,notes:'Warf-6',ts:'s8'},
+  {date:'2025-10-06',val:2.0,dose:6,notes:'Warf-6',ts:'s9'},
+  {date:'2025-10-13',val:2.1,dose:6,notes:'Warf-6',ts:'s10'},
+  {date:'2025-10-20',val:2.1,dose:6,notes:'Warf-6',ts:'s11'},
+  {date:'2025-10-27',val:1.8,dose:6,notes:'Warf-6',ts:'s12'},
+  {date:'2025-11-03',val:2.1,dose:6,notes:'Warf-6',ts:'s13'},
+  {date:'2025-11-11',val:1.7,dose:6,notes:'Warf-6 → upgraded to Warf-7',ts:'s14'},
+  {date:'2025-11-18',val:2.3,dose:7,notes:'Warf-7',ts:'s15'},
+  {date:'2025-11-25',val:2.8,dose:7,notes:'Warf-7',ts:'s16'},
+  {date:'2025-12-02',val:3.1,dose:7,notes:'Warf-7',ts:'s17'},
+  {date:'2025-12-09',val:3.3,dose:7,notes:'Warf-7 → reduced to Warf-6',ts:'s18'},
+  {date:'2025-12-16',val:2.7,dose:6,notes:'Warf-6',ts:'s19'},
+  {date:'2025-12-24',val:1.9,dose:6,notes:'Warf-6',ts:'s20'},
+  {date:'2025-12-31',val:2.2,dose:6,notes:'Warf-6',ts:'s21'},
+  {date:'2026-01-07',val:2.1,dose:6,notes:'Warf-6',ts:'s22'},
+  {date:'2026-01-14',val:2.0,dose:6,notes:'Warf-6',ts:'s23'},
+  {date:'2026-01-21',val:2.1,dose:6,notes:'Warf-6',ts:'s24'},
+  {date:'2026-01-28',val:2.2,dose:6,notes:'Warf-6',ts:'s25'},
+  {date:'2026-02-04',val:2.7,dose:6,notes:'Warf-6',ts:'s26'},
+  {date:'2026-02-15',val:2.3,dose:6,notes:'Warf-6',ts:'s27'},
+  {date:'2026-03-01',val:2.2,dose:6,notes:'Warf-6',ts:'s28'},
+  {date:'2026-03-16',val:2.6,dose:6,notes:'Warf-6',ts:'s29'},
+  {date:'2026-04-03',val:2.8,dose:6,notes:'Warf-6',ts:'s30'},
+  {date:'2026-04-13',val:2.4,dose:6,notes:'Warf-6',ts:'s31'},
+  {date:'2026-04-21',val:2.3,dose:6,notes:'Warf-6',ts:'s32'},
+  {date:'2026-04-27',val:1.03,dose:6,notes:'⚠️ Clexane 0.6 started — bridge before surgery on 28th April',ts:'s33'},
+  {date:'2026-05-05',val:1.9,dose:null,notes:'Clexane 0.4 last dose',ts:'s34'},
+  {date:'2026-05-10',val:2.6,dose:6,notes:'Back on Warf-6 post-surgery',ts:'s35'},
+  {date:'2026-05-12',val:2.7,dose:6,notes:'Warf-6',ts:'s36'},
+  {date:'2026-05-13',val:1.03,dose:6,notes:'⚠️ INR brought down by Vitamin K injection for surgery',ts:'s37'},
+  {date:'2026-05-15',val:1.13,dose:6,notes:'Clexane 0.80 started + Warf-6 1st dose post-reset',ts:'s38'},
+  {date:'2026-05-16',val:1.3,dose:6,notes:'Clexane 0.80 — Clexane stopped today',ts:'s39'},
+  {date:'2026-05-19',val:1.8,dose:6,notes:'Warf-6',ts:'s40'},
+  {date:'2026-05-21',val:2.3,dose:5,notes:'Switched to Warf-5',ts:'s41'},
+  {date:'2026-05-22',val:2.2,dose:5,notes:'Warf-5',ts:'s42'},
+  {date:'2026-05-23',val:2.8,dose:5,notes:'Warf-5',ts:'s43'},
+  {date:'2026-05-24',val:2.7,dose:5,notes:'Warf-5',ts:'s44'},
+  {date:'2026-05-25',val:2.8,dose:5,notes:'Warf-5',ts:'s45'},
+  {date:'2026-05-26',val:2.6,dose:5,notes:'Warf-5',ts:'s46'},
+  {date:'2026-05-28',val:2.8,dose:5,notes:'Warf-5',ts:'s47'},
+  {date:'2026-05-30',val:2.8,dose:5,notes:'Warf-5',ts:'s48'},
+  {date:'2026-06-02',val:2.6,dose:5,notes:'Warf-5',ts:'s49'},
+  {date:'2026-06-07',val:3.4,dose:5,notes:'Warf-5 — INR rising, monitor closely',ts:'s50'}
+];
 
-function fetchData() {
-  fetch(API_URL + '?action=getAll', {redirect:'follow'})
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      inrData = (d.inrLog || []).sort(function(a,b){ return new Date(a[0]) - new Date(b[0]); });
-      settings = Object.assign(settings, d.settings || {});
-      document.getElementById('connect-card').classList.add('hidden');
-      document.getElementById('main-app').classList.remove('hidden');
-      renderAll();
-    })
-    .catch(function(e){
-      document.getElementById('connect-status').innerHTML = '<div class="status err">Could not connect: ' + e.message + '</div>';
-    });
-}
-
-function renderAll() { renderStats(); renderTable(); loadSettings(); }
-
-function renderStats() {
-  if (!inrData.length) return;
-  var last = inrData[inrData.length-1];
-  var v = parseFloat(last[1]);
-  var low = parseFloat(settings.targetLow) || 2.5;
-  var high = parseFloat(settings.targetHigh) || 3.5;
-  document.getElementById('last-inr').textContent = v.toFixed(2);
-  document.getElementById('last-dose').textContent = (last[2] && last[2] != 0) ? last[2] + ' mg' : 'See notes';
-  document.getElementById('last-date').textContent = last[0] ? new Date(last[0]).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '-';
-  var cls = 'in-range', lbl = 'In Range', bc = 'badge-green';
-  if (v < low) { cls = 'below-range'; lbl = 'Below Target'; bc = 'badge-orange'; }
-  if (v > high) { cls = 'above-range'; lbl = 'Above Target'; bc = 'badge-red'; }
-  document.getElementById('last-inr').className = 'val ' + cls;
-  document.getElementById('inr-badge').innerHTML = '<span class="badge ' + bc + '">' + lbl + '</span>';
-  var ok = inrData.filter(function(r){ var x=parseFloat(r[1]); return x>=low && x<=high; }).length;
-  document.getElementById('in-range-pct').textContent = Math.round(ok / inrData.length * 100) + '%';
-}
-
-function renderTable() {
-  var tbody = document.getElementById('inr-tbody');
-  var low = parseFloat(settings.targetLow) || 2.5;
-  var high = parseFloat(settings.targetHigh) || 3.5;
-  tbody.innerHTML = '';
-  document.getElementById('record-count').textContent = inrData.length;
-  var rows = inrData.slice().reverse();
-  for (var i = 0; i < rows.length; i++) {
-    var row = rows[i];
-    var v = parseFloat(row[1]);
-    var date = row[0] ? new Date(row[0]).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '-';
-    var b = v < low ? '<span class="badge badge-orange">Low</span>' : v > high ? '<span class="badge badge-red">High</span>' : '<span class="badge badge-green">OK</span>';
-    var tr = document.createElement('tr');
-    var ts = row[4] || '';
-    tr.innerHTML = '<td>' + date + '</td><td>' + b + ' ' + v.toFixed(2) + '</td><td>' + (row[2] || '-') + '</td><td style="color:#718096;font-size:.8rem">' + (row[3] || '') + '</td><td><button class="btn btn-danger" onclick="deleteINR(this)" data-ts="' + ts + '">x</button></td>';
-    tbody.appendChild(tr);
-  }
-}
-
-function addINR() {
-  var date = document.getElementById('new-date').value;
-  var val = document.getElementById('new-inr').value;
-  var dose = document.getElementById('new-dose').value;
-  var notes = document.getElementById('new-notes').value;
-  var ts = Date.now();
-  if (!date || !val) { document.getElementById('add-status').textContent = 'Date and INR required'; return; }
-  fetch(API_URL + '?action=addINR&date=' + date + '&val=' + val + '&dose=' + dose + '&notes=' + encodeURIComponent(notes) + '&ts=' + ts, {redirect:'follow'})
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.ok) {
-        document.getElementById('add-status').textContent = 'Saved!';
-        document.getElementById('new-date').value = new Date().toISOString().split('T')[0];
-        document.getElementById('new-inr').value = '';
-        document.getElementById('new-dose').value = '';
-        document.getElementById('new-notes').value = '';
-        fetchData();
-      } else {
-        document.getElementById('add-status').textContent = 'Error: ' + (d.error || 'Unknown');
-      }
-    })
-    .catch(function(e){ document.getElementById('add-status').textContent = e.message; });
-}
-
-function deleteINR(btn) {
-  if (!confirm('Delete this record?')) return;
-  var ts = btn.getAttribute('data-ts');
-  fetch(API_URL + '?action=deleteINR&ts=' + ts, {redirect:'follow'})
-    .then(function(r){ return r.json(); })
-    .then(function(d){ if (d.ok) fetchData(); });
-}
-
-function loadSettings() {
-  document.getElementById('s-name').value = settings.patientName || '';
-  document.getElementById('s-low').value = settings.targetLow || 2.5;
-  document.getElementById('s-high').value = settings.targetHigh || 3.5;
-}
-
-function saveSettings() {
-  settings.patientName = document.getElementById('s-name').value;
-  settings.targetLow = document.getElementById('s-low').value;
-  settings.targetHigh = document.getElementById('s-high').value;
-  fetch(API_URL + '?action=saveSettings&settings=' + encodeURIComponent(JSON.stringify(settings)), {redirect:'follow'})
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.ok) {
-        document.getElementById('settings-status').textContent = 'Saved!';
-        renderStats();
-        setTimeout(function(){ document.getElementById('settings-status').textContent = ''; }, 2000);
-      }
-    });
-}
-
-function showTab(t) {
-  var tabs = ['log','add','settings'];
-  for (var i=0; i<tabs.length; i++) {
-    document.getElementById('tab-' + tabs[i]).classList.add('hidden');
-    document.querySelectorAll('.tab')[i].classList.remove('active');
-  }
-  document.getElementById('tab-' + t).classList.remove('hidden');
-  document.querySelectorAll('.tab')[tabs.indexOf(t)].classList.add('active');
-}
-
-window.onload = function() {
-  document.getElementById('new-date').value = new Date().toISOString().split('T')[0];
-  var saved = localStorage.getItem('inr_url');
-  if (saved) { document.getElementById('api-url').value = saved; connect(); }
+// ═══════════════════════════════════════════════
+//  STATE & STORAGE
+// ═══════════════════════════════════════════════
+let SCRIPT_URL = localStorage.getItem('inrScriptUrl') || '';
+let settings = JSON.parse(localStorage.getItem('inrSettings') || 'null') || {
+  targetLow:2.5, targetHigh:3.5, vkGoal:90, patientName:'Arpit Mehta', warfDose:'5'
 };
+let inrLog = [];
+let foodLog = [];
+let offlineMode = localStorage.getItem('inrOfflineMode') === 'true';
+
+// ─── API ─────────────────────────────────────────────────────────────────────
+async function api(params) {
+  if (offlineMode) return offlineApi(params);
+  const url = new URL(SCRIPT_URL);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+  setSyncing(true);
+  try {
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    setSyncing(false);
+    if (data.error) throw new Error(data.error);
+    return data;
+  } catch(e) {
+    setSyncing(false, true);
+    throw e;
+  }
+}
+
+function setSyncing(active, error=false) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncStatus');
+  if (error) { dot.className='sync-dot error'; txt.textContent='Sync error — check connection'; return; }
+  if (active) { dot.className='sync-dot syncing'; txt.textContent='Syncing…'; }
+  else {
+    dot.className='sync-dot';
+    txt.textContent='Synced to Google Sheets';
+    document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString();
+  }
+}
+
+// Offline mode: use localStorage
+function offlineApi(params) {
+  const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
+  if (params.action === 'getAll') {
+    return { inrLog: local.inrLog.map(r=>[r.date,r.val,r.dose,r.notes,r.ts]),
+             foodLog: local.foodLog.map(r=>[r.date,r.name,r.meal,r.qty,r.unit,r.vk,r.kcal,r.carb,r.protein,r.fat,r.ts]),
+             settings };
+  }
+  if (params.action === 'addINR') {
+    local.inrLog.push({date:params.date,val:params.val,dose:params.dose,notes:params.notes,ts:params.ts});
+    localStorage.setItem('inrOfflineData', JSON.stringify(local)); return {ok:true};
+  }
+  if (params.action === 'deleteINR') {
+    local.inrLog = local.inrLog.filter(r=>String(r.ts)!==String(params.ts));
+    localStorage.setItem('inrOfflineData', JSON.stringify(local)); return {ok:true};
+  }
+  if (params.action === 'addFood') {
+    local.foodLog.push({date:params.date,name:params.name,meal:params.meal,qty:params.qty,unit:params.unit,
+      vk:params.vk,kcal:params.kcal,carb:params.carb,protein:params.protein,fat:params.fat,ts:params.ts});
+    localStorage.setItem('inrOfflineData', JSON.stringify(local)); return {ok:true};
+  }
+  if (params.action === 'deleteFood') {
+    local.foodLog = local.foodLog.filter(r=>String(r.ts)!==String(params.ts));
+    localStorage.setItem('inrOfflineData', JSON.stringify(local)); return {ok:true};
+  }
+  if (params.action === 'saveSettings') { localStorage.setItem('inrSettings', params.settings); return {ok:true}; }
+  return {ok:true};
+}
+
+// ─── LOAD DATA ────────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const data = await api({action:'getAll'});
+    // Parse INR rows: [date, val, dose, notes, ts]
+    inrLog = (data.inrLog||[]).filter(r=>r[0]).map(r=>({
+      date:r[0], val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:r[4]||r[0]
+    })).sort((a,b)=>a.date.localeCompare(b.date));
+    // Parse food rows: [date, name, meal, qty, unit, vk, kcal, carb, protein, fat, ts]
+    foodLog = (data.foodLog||[]).filter(r=>r[0]).map(r=>({
+      date:r[0],name:r[1],meal:r[2],qty:parseFloat(r[3]),unit:r[4],
+      vk:parseFloat(r[5]),kcal:parseFloat(r[6]),carb:parseFloat(r[7]),
+      protein:parseFloat(r[8]),fat:parseFloat(r[9]),ts:r[10]
+    }));
+    if (data.settings) {
+      settings = {...settings, ...data.settings};
+      localStorage.setItem('inrSettings', JSON.stringify(settings));
+    }
+  } catch(e) {
+    console.error('Load failed:', e);
+  }
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════
+//  SETUP & CONNECTION
+// ═══════════════════════════════════════════════
+async function connectScript() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url || !url.includes('script.google.com')) {
+    setConnectStatus('❌ Please paste a valid Apps Script URL', 'var(--danger)'); return;
+  }
+  setConnectStatus('⏳ Testing connection…', 'var(--muted)');
+  try {
+    const testUrl = new URL(url);
+    testUrl.searchParams.set('action', 'getAll');
+    const res = await fetch(testUrl.toString());
+    const data = await res.json();
+    if (data.error && !data.inrLog) throw new Error(data.error);
+    SCRIPT_URL = url;
+    localStorage.setItem('inrScriptUrl', url);
+    localStorage.removeItem('inrOfflineMode');
+    offlineMode = false;
+    setConnectStatus('✅ Connected!', 'var(--good)');
+    setTimeout(() => launchApp(), 800);
+  } catch(e) {
+    setConnectStatus('❌ Could not connect: ' + e.message, 'var(--danger)');
+  }
+}
+
+function setConnectStatus(msg, color) {
+  const el = document.getElementById('connectStatus');
+  el.textContent = msg;
+  el.style.color = color;
+}
+
+function loadSavedUrl() {
+  const saved = localStorage.getItem('inrScriptUrl');
+  if (saved) { document.getElementById('scriptUrl').value = saved; connectScript(); }
+  else setConnectStatus('No saved URL found. Please paste your URL.', 'var(--muted)');
+}
+
+function useOfflineMode() {
+  offlineMode = true;
+  localStorage.setItem('inrOfflineMode', 'true');
+  // Seed historical data into offline store if empty
+  const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
+  if (!local.inrLog.length) {
+    local.inrLog = ARPIT_SEED_INR;
+    localStorage.setItem('inrOfflineData', JSON.stringify(local));
+  }
+  launchApp();
+}
+
+function showSetup() {
+  document.getElementById('setupScreen').style.display = 'flex';
+  ['syncBar','appHeader','appTabs','appMain'].forEach(id => document.getElementById(id).style.display='none');
+}
+
+function reconnect() {
+  const url = document.getElementById('settingsScriptUrl').value.trim();
+  if (url) { document.getElementById('scriptUrl').value = url; }
+  showSetup();
+}
+
+function launchApp() {
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('syncBar').style.display = offlineMode ? 'none' : 'flex';
+  document.getElementById('appHeader').style.display = 'flex';
+  document.getElementById('appTabs').style.display = 'flex';
+  document.getElementById('appMain').style.display = 'block';
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('inrDate').value = toDateStr(now);
+  document.getElementById('foodDate').value = toDateStr(now);
+  document.getElementById('nextDoseDate').value = toDateStr(new Date(now.getTime()+86400000));
+  loadSettings();
+  renderVKGuide();
+  loadAll();
+}
+
+// ═══════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════
+function loadSettings() {
+  document.getElementById('targetLow').value = settings.targetLow;
+  document.getElementById('targetHigh').value = settings.targetHigh;
+  document.getElementById('vkGoalInput').value = settings.vkGoal;
+  document.getElementById('patientName').value = settings.patientName||'';
+  document.getElementById('currentWarf').value = settings.warfDose||'';
+  document.getElementById('settingsScriptUrl').value = SCRIPT_URL;
+  document.getElementById('targetDisplay').textContent = `${settings.targetLow} – ${settings.targetHigh}`;
+  document.getElementById('vkGoalDisplay').textContent = settings.vkGoal;
+  document.getElementById('headerSub').textContent =
+    `${settings.patientName||'Arpit'} · MICS AVR · Warf-${settings.warfDose||'?'}`;
+  const info = document.getElementById('sheetConnectedInfo');
+  if (offlineMode) info.textContent = '⚠️ Offline mode — data saved to this browser only.';
+  else info.innerHTML = `✅ Connected. Data saved to Google Sheets permanently. <a href="${SCRIPT_URL.replace('/exec','/edit')}" target="_blank" style="color:var(--accent)">Open Sheet →</a>`;
+}
+
+async function saveSettings() {
+  settings.targetLow = parseFloat(document.getElementById('targetLow').value)||2.5;
+  settings.targetHigh = parseFloat(document.getElementById('targetHigh').value)||3.5;
+  settings.vkGoal = parseFloat(document.getElementById('vkGoalInput').value)||90;
+  settings.patientName = document.getElementById('patientName').value;
+  settings.warfDose = document.getElementById('currentWarf').value;
+  localStorage.setItem('inrSettings', JSON.stringify(settings));
+  try { await api({action:'saveSettings', settings:JSON.stringify(settings)}); } catch(e){}
+  loadSettings();
+  renderAll();
+  alert('Settings saved!');
+}
+
+// ═══════════════════════════════════════════════
+//  LOG INR
+// ═══════════════════════════════════════════════
+async function logINR() {
+  const val = parseFloat(document.getElementById('inrValue').value);
+  const date = document.getElementById('inrDate').value;
+  const dose = parseFloat(document.getElementById('warfDose').value)||'';
+  const notes = document.getElementById('inrNotes').value;
+  if (!val||!date) { alert('Please enter INR value and date.'); return; }
+  const btn = document.getElementById('saveInrBtn');
+  btn.disabled=true; btn.textContent='Saving…';
+  try {
+    await api({action:'addINR',date,val,dose,notes,ts:Date.now().toString()});
+    inrLog.push({date,val,dose,notes,ts:Date.now().toString()});
+    inrLog.sort((a,b)=>a.date.localeCompare(b.date));
+    document.getElementById('inrSaveMsg').textContent = `✓ INR ${val} saved`;
+    document.getElementById('inrValue').value='';
+    document.getElementById('inrNotes').value='';
+    setTimeout(()=>document.getElementById('inrSaveMsg').textContent='',3000);
+    renderAll();
+  } catch(e) { alert('Save failed: '+e.message); }
+  btn.disabled=false; btn.textContent='Save to Google Sheets';
+}
+
+async function deleteINR(ts) {
+  if (!confirm('Delete this INR reading?')) return;
+  try {
+    await api({action:'deleteINR',ts:String(ts)});
+    inrLog = inrLog.filter(r=>String(r.ts)!==String(ts));
+    renderAll();
+  } catch(e) { alert('Delete failed: '+e.message); }
+}
+
+// ═══════════════════════════════════════════════
+//  FOOD
+// ═══════════════════════════════════════════════
+let selectedFood = null;
+
+function searchFood() {
+  const q = document.getElementById('foodSearch').value.toLowerCase().trim();
+  const res = document.getElementById('foodSearchResults');
+  if (!q) { res.classList.remove('open'); selectedFood=null; return; }
+  const matches = FOODS.filter(f=>f[0].toLowerCase().includes(q)).slice(0,10);
+  if (!matches.length) { res.innerHTML='<div class="food-result-item" style="color:var(--muted)">No results</div>'; res.classList.add('open'); return; }
+  res.innerHTML = matches.map(f=>{
+    const cls = f[2]>=100?'vk-high':f[2]>=20?'vk-med':'vk-low';
+    return `<div class="food-result-item" onclick="selectFood(${FOODS.indexOf(f)})">
+      <span>${f[0]} <span style="color:var(--muted);font-size:11px">(${f[1]})</span></span>
+      <span class="vk-badge ${cls}">${f[2]} mcg</span>
+    </div>`;
+  }).join('');
+  res.classList.add('open');
+}
+
+function selectFood(idx) {
+  selectedFood = FOODS[idx];
+  document.getElementById('foodSearch').value = selectedFood[0];
+  document.getElementById('foodSearchResults').classList.remove('open');
+  document.getElementById('selectedFoodDetails').style.display='';
+  document.getElementById('addFoodBtn').disabled=false;
+  updateFoodPreview();
+}
+
+function updateFoodPreview() {
+  if (!selectedFood) return;
+  const qty = parseFloat(document.getElementById('foodQty').value)||1;
+  document.getElementById('previewName').textContent = `${selectedFood[0]} — ${qty} ${document.getElementById('foodUnit').value}`;
+  document.getElementById('previewVK').textContent = (selectedFood[2]*qty).toFixed(1);
+  document.getElementById('previewKcal').textContent = Math.round(selectedFood[3]*qty);
+  document.getElementById('previewCarb').textContent = (selectedFood[4]*qty).toFixed(1);
+  document.getElementById('previewProt').textContent = (selectedFood[5]*qty).toFixed(1);
+}
+
+async function addFood() {
+  if (!selectedFood) return;
+  const qty = parseFloat(document.getElementById('foodQty').value)||1;
+  const unit = document.getElementById('foodUnit').value;
+  const meal = document.getElementById('mealType').value;
+  const date = document.getElementById('foodDate').value||today();
+  const ts = Date.now().toString();
+  const entry = {
+    date,name:selectedFood[0],meal,qty,unit,ts,
+    vk:parseFloat((selectedFood[2]*qty).toFixed(1)),
+    kcal:parseFloat((selectedFood[3]*qty).toFixed(1)),
+    carb:parseFloat((selectedFood[4]*qty).toFixed(1)),
+    protein:parseFloat((selectedFood[5]*qty).toFixed(1)),
+    fat:parseFloat((selectedFood[6]*qty).toFixed(1))
+  };
+  const btn = document.getElementById('addFoodBtn');
+  btn.disabled=true; btn.textContent='Saving…';
+  try {
+    await api({action:'addFood',...entry});
+    foodLog.push(entry);
+    document.getElementById('addFoodMsg').textContent=`✓ Added ${selectedFood[0]}`;
+    setTimeout(()=>document.getElementById('addFoodMsg').textContent='',2500);
+    clearFoodForm();
+    renderAll();
+  } catch(e) { alert('Save failed: '+e.message); }
+  btn.disabled=false; btn.textContent='Save to Sheets';
+  document.getElementById('addFoodBtn').disabled = selectedFood ? false : true;
+}
+
+async function deleteFood(ts) {
+  try {
+    await api({action:'deleteFood',ts:String(ts)});
+    foodLog = foodLog.filter(f=>String(f.ts)!==String(ts));
+    renderAll();
+  } catch(e) { alert('Delete failed: '+e.message); }
+}
+
+function clearFoodForm() {
+  selectedFood=null;
+  document.getElementById('foodSearch').value='';
+  document.getElementById('foodSearchResults').classList.remove('open');
+  document.getElementById('selectedFoodDetails').style.display='none';
+  document.getElementById('addFoodBtn').disabled=true;
+  document.getElementById('foodQty').value=1;
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+function renderAll() {
+  renderToday();
+  renderFoodLog();
+  renderHistory();
+}
+
+function today() { return toDateStr(new Date()); }
+function toDateStr(d) { return d.toISOString().split('T')[0]; }
+
+function renderToday() {
+  const s = settings;
+  const sorted = [...inrLog].sort((a,b)=>a.date.localeCompare(b.date));
+  const latest = sorted.length ? sorted[sorted.length-1] : null;
+
+  // Gauge
+  const gaugeVal = document.getElementById('gaugeVal');
+  const badge = document.getElementById('inrBadge');
+  const badgeText = document.getElementById('inrBadgeText');
+  if (latest) {
+    const inr = latest.val;
+    gaugeVal.textContent = inr.toFixed(1);
+    document.getElementById('warfDoseDisplay').textContent = latest.dose ? `${latest.dose}mg` : s.warfDose ? `${s.warfDose}mg` : '—';
+    document.getElementById('lastLoggedDisplay').textContent = latest.date;
+    const pct = Math.min(Math.max((inr-1.0)/3.0,0),1);
+    document.getElementById('gaugeArc').setAttribute('stroke-dasharray',`${pct*188} 200`);
+    if (inr < s.targetLow) {
+      badge.className='inr-status-badge status-low'; badgeText.textContent='Below Target';
+      document.getElementById('gaugeArc').setAttribute('stroke','#f59e0b'); gaugeVal.style.color='#b45309';
+    } else if (inr > s.targetHigh) {
+      badge.className='inr-status-badge status-high'; badgeText.textContent=inr>4.5?'⚠️ URGENT':'Above Target';
+      document.getElementById('gaugeArc').setAttribute('stroke','#ef4444'); gaugeVal.style.color='#b91c1c';
+    } else {
+      badge.className='inr-status-badge status-ok'; badgeText.textContent='In Range ✓';
+      document.getElementById('gaugeArc').setAttribute('stroke','#10b981'); gaugeVal.style.color='#065f46';
+    }
+    // Rising alert
+    const prev = sorted.length>=2 ? sorted[sorted.length-2] : null;
+    const diff = prev ? inr - prev.val : 0;
+    const alertEl = document.getElementById('risingAlert');
+    if (inr > s.targetHigh) {
+      alertEl.style.display='flex';
+      document.getElementById('risingAlertText').innerHTML=`INR is <strong>${inr}</strong> — above target ${s.targetLow}–${s.targetHigh}. ${inr>4.5?'<strong style="color:#b91c1c">Seek medical attention immediately.</strong>':'Contact doctor for dose review.'}`;
+    } else if (diff>=0.5 && inr > s.targetHigh-0.4) {
+      alertEl.style.display='flex';
+      document.getElementById('risingAlertText').innerHTML=`INR rising quickly (+${diff.toFixed(1)} since last). At <strong>${inr}</strong> — approaching upper limit.`;
+    } else { alertEl.style.display='none'; }
+  } else {
+    gaugeVal.textContent='—'; badgeText.textContent='No data yet';
+    document.getElementById('warfDoseDisplay').textContent=s.warfDose?`${s.warfDose}mg`:'—';
+    document.getElementById('lastLoggedDisplay').textContent='—';
+    document.getElementById('risingAlert').style.display='none';
+  }
+  document.getElementById('targetDisplay').textContent=`${s.targetLow} – ${s.targetHigh}`;
+
+  // VK + macros
+  const todayFoods = foodLog.filter(f=>f.date===today());
+  const totalVK = todayFoods.reduce((a,f)=>a+f.vk,0);
+  document.getElementById('todayVKTotal').innerHTML=`${totalVK.toFixed(0)} <span style="font-size:14px;color:var(--muted)">mcg</span>`;
+  const pct = Math.min((totalVK/s.vkGoal)*100,200);
+  const fill = document.getElementById('vkMeterFill');
+  fill.style.width=`${Math.min(pct,100)}%`;
+  fill.style.background=pct>150?'var(--danger)':pct>100?'var(--warn)':'var(--good)';
+  document.getElementById('vkGoalDisplay').textContent=s.vkGoal;
+  document.getElementById('macroKcal').textContent=Math.round(todayFoods.reduce((a,f)=>a+f.kcal,0));
+  document.getElementById('macroCarb').textContent=todayFoods.reduce((a,f)=>a+f.carb,0).toFixed(0)+'g';
+  document.getElementById('macroProtein').textContent=todayFoods.reduce((a,f)=>a+f.protein,0).toFixed(0)+'g';
+  document.getElementById('macroFat').textContent=todayFoods.reduce((a,f)=>a+f.fat,0).toFixed(0)+'g';
+
+  // Today food list
+  const el = document.getElementById('todayFoodList');
+  if (!todayFoods.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">🥗</div><div>No foods logged today.</div></div>'; return; }
+  const meals=['Breakfast','Lunch','Dinner','Snack'];
+  el.innerHTML = meals.map(m=>{
+    const mf=todayFoods.filter(f=>f.meal===m); if(!mf.length) return '';
+    return `<div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:10px 0 6px">${m}</div>`+
+      mf.map(f=>{const cls=f.vk>=100?'vk-high':f.vk>=20?'vk-med':'vk-low';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">
+          <span>${f.name} <span style="color:var(--muted)">${f.qty} ${f.unit}</span></span>
+          <span class="vk-badge ${cls}">${f.vk.toFixed(0)} mcg</span>
+        </div>`;}).join('');
+  }).join('');
+}
+
+function renderFoodLog() {
+  const todayFoods = foodLog.filter(f=>f.date===today());
+  const el = document.getElementById('foodLogList');
+  if (!todayFoods.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div>Nothing logged yet today.</div></div>'; return; }
+  el.innerHTML='<table class="food-table"><thead><tr><th>Food</th><th>Meal</th><th>VK</th><th>kcal</th><th></th></tr></thead><tbody>'+
+    todayFoods.map(f=>{const cls=f.vk>=100?'vk-high':f.vk>=20?'vk-med':'vk-low';
+      return `<tr><td><div style="font-weight:500">${f.name}</div><div style="font-size:11px;color:var(--muted)">${f.qty} ${f.unit}</div></td>
+        <td>${f.meal}</td><td><span class="vk-badge ${cls}">${f.vk.toFixed(0)}</span></td>
+        <td style="font-family:var(--mono);font-size:13px">${Math.round(f.kcal)}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteFood('${f.ts}')">✕</button></td></tr>`;
+    }).join('')+'</tbody></table>';
+}
+
+function renderHistory() {
+  const el = document.getElementById('inrHistoryList');
+  if (!inrLog.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div>No readings yet.</div></div>'; renderCharts(); return; }
+  const sorted=[...inrLog].reverse();
+  el.innerHTML=sorted.map((e,i)=>{
+    const prev=sorted[i+1];
+    const arrow=prev?(e.val>prev.val?'↑':e.val<prev.val?'↓':'→'):'';
+    const color=e.val<settings.targetLow?'#b45309':e.val>settings.targetHigh?'#b91c1c':'#065f46';
+    return `<div class="history-item">
+      <span class="history-date">${e.date}</span>
+      <span class="history-inr" style="color:${color}">${e.val.toFixed(1)}</span>
+      <span class="history-warf">${e.dose?'💊 '+e.dose+'mg':''}</span>
+      <span style="color:${color};font-size:16px">${arrow}</span>
+      <span class="history-note">${e.notes||''}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteINR('${e.ts}')">✕</button>
+    </div>`;
+  }).join('');
+  renderCharts();
+}
+
+function renderCharts() {
+  // INR chart
+  const c1 = document.getElementById('inrChart');
+  const ctx1 = c1.getContext('2d');
+  const W = c1.offsetWidth||700, H=130;
+  c1.width=W; c1.height=H;
+  ctx1.clearRect(0,0,W,H);
+  const data = inrLog.slice(-30);
+  if (data.length>=2) {
+    const vals=data.map(d=>d.val), minV=1.0, maxV=Math.max(4.5,...vals);
+    const s=settings;
+    // target band
+    const yL=H-((s.targetLow-minV)/(maxV-minV))*(H-30)-15;
+    const yH=H-((s.targetHigh-minV)/(maxV-minV))*(H-30)-15;
+    ctx1.fillStyle='rgba(16,185,129,0.1)'; ctx1.fillRect(0,yH,W,yL-yH);
+    // line
+    ctx1.beginPath(); ctx1.strokeStyle='#3b82f6'; ctx1.lineWidth=2;
+    data.forEach((d,i)=>{
+      const x=(i/(data.length-1))*(W-20)+10;
+      const y=H-((d.val-minV)/(maxV-minV))*(H-30)-15;
+      i===0?ctx1.moveTo(x,y):ctx1.lineTo(x,y);
+    });
+    ctx1.stroke();
+    // dots
+    data.forEach((d,i)=>{
+      const x=(i/(data.length-1))*(W-20)+10;
+      const y=H-((d.val-minV)/(maxV-minV))*(H-30)-15;
+      const color=d.val<s.targetLow?'#f59e0b':d.val>s.targetHigh?'#ef4444':'#10b981';
+      ctx1.beginPath(); ctx1.arc(x,y,4,0,Math.PI*2); ctx1.fillStyle=color; ctx1.fill();
+      ctx1.fillStyle='#64748b'; ctx1.font='10px monospace'; ctx1.fillText(d.val.toFixed(1),x-8,y-8);
+    });
+    // target labels
+    ctx1.setLineDash([4,3]); ctx1.strokeStyle='rgba(16,185,129,0.6)'; ctx1.lineWidth=1;
+    ctx1.beginPath(); ctx1.moveTo(0,yH); ctx1.lineTo(W,yH); ctx1.stroke();
+    ctx1.beginPath(); ctx1.moveTo(0,yL); ctx1.lineTo(W,yL); ctx1.stroke();
+    ctx1.setLineDash([]);
+  }
+  // VK chart
+  const c2=document.getElementById('vkChart');
+  const ctx2=c2.getContext('2d');
+  const W2=c2.offsetWidth||700, H2=100;
+  c2.width=W2; c2.height=H2; ctx2.clearRect(0,0,W2,H2);
+  const days=[]; for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(toDateStr(d));}
+  const vks=days.map(d=>foodLog.filter(f=>f.date===d).reduce((a,f)=>a+f.vk,0));
+  const maxV2=Math.max(...vks,settings.vkGoal*1.5,10);
+  const bw=(W2-40)/7;
+  vks.forEach((v,i)=>{
+    const bh=(v/maxV2)*(H2-25);
+    const x=20+i*bw;
+    const color=v>settings.vkGoal*1.5?'#ef4444':v>settings.vkGoal?'#f59e0b':'#3b82f6';
+    ctx2.fillStyle=color; ctx2.fillRect(x+2,H2-bh-18,bw-6,bh);
+    ctx2.fillStyle='#9ca3af'; ctx2.font='9px sans-serif'; ctx2.fillText(days[i].slice(5),x+2,H2-4);
+    if(v>0){ctx2.fillStyle='#374151';ctx2.fillText(Math.round(v),x+2,H2-bh-20);}
+  });
+  const gy=H2-(settings.vkGoal/maxV2)*(H2-25)-18;
+  ctx2.setLineDash([4,3]); ctx2.strokeStyle='#10b981'; ctx2.lineWidth=1.5;
+  ctx2.beginPath(); ctx2.moveTo(20,gy); ctx2.lineTo(W2-10,gy); ctx2.stroke();
+  ctx2.setLineDash([]); ctx2.fillStyle='#10b981'; ctx2.font='10px sans-serif'; ctx2.fillText('Goal',W2-35,gy-3);
+}
+
+function renderVKGuide() {
+  const high=FOODS.filter(f=>f[2]>=100), med=FOODS.filter(f=>f[2]>=20&&f[2]<100), low=FOODS.filter(f=>f[2]<20);
+  const rows=(list,cls)=>list.map(f=>`<tr>
+    <td style="font-weight:500">${f[0]}</td><td style="color:var(--muted);font-size:12px">${f[1]}</td>
+    <td><span class="vk-badge ${cls}">${f[2]}</span></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="quickAdd(${FOODS.indexOf(f)})">+ Add</button></td>
+  </tr>`).join('');
+  document.getElementById('vkHighTable').innerHTML=rows(high,'vk-high');
+  document.getElementById('vkMedTable').innerHTML=rows(med,'vk-med');
+  document.getElementById('vkLowTable').innerHTML=rows(low,'vk-low');
+}
+
+function quickAdd(idx) {
+  switchTab('food'); selectedFood=FOODS[idx];
+  document.getElementById('foodSearch').value=FOODS[idx][0];
+  document.getElementById('selectedFoodDetails').style.display='';
+  document.getElementById('addFoodBtn').disabled=false;
+  document.getElementById('foodDate').value=today();
+  updateFoodPreview();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT / IMPORT JSON BACKUP
+// ═══════════════════════════════════════════════
+function exportJSON() {
+  const blob=new Blob([JSON.stringify({inrLog,foodLog,settings},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`arpit-inr-backup-${today()}.json`; a.click();
+}
+
+async function importJSON(event) {
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try {
+      const d=JSON.parse(e.target.result);
+      if(!d.inrLog) { alert('Invalid file.'); return; }
+      if(!confirm(`Import ${d.inrLog.length} INR readings and ${d.foodLog?.length||0} food entries?`)) return;
+      // Push to sheets
+      let count=0;
+      for(const r of d.inrLog) {
+        try { await api({action:'addINR',date:r.date,val:r.val,dose:r.dose||'',notes:r.notes||'',ts:r.ts||Date.now().toString()}); count++; }
+        catch(e){}
+      }
+      alert(`Imported ${count} INR readings. Refreshing…`);
+      await loadAll();
+    } catch { alert('Could not read file.'); }
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+// ═══════════════════════════════════════════════
+//  TABS / UTIL
+// ═══════════════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  const tabs=['today','log-inr','food','history','vkguide','settings'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
+  if(id==='history') renderCharts();
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#foodSearch')&&!e.target.closest('#foodSearchResults'))
+    document.getElementById('foodSearchResults').classList.remove('open');
+});
+
+// Auto-launch if URL already saved
+window.addEventListener('load', () => {
+  if (localStorage.getItem('inrScriptUrl')) loadSavedUrl();
+  else if (localStorage.getItem('inrOfflineMode')==='true') useOfflineMode();
+});
 </script>
 </body>
 </html>
