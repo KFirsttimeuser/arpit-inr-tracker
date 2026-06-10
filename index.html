@@ -1308,51 +1308,82 @@ function offlineApi(params) {
 }
 
 // ─── LOAD DATA ────────────────────────────────────────────────────────────────
+function parseSheetINR(rows) {
+  return (rows||[]).filter(r=>r[0]).map(r=>({
+    date:cleanDate(String(r[0])), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
+  }));
+}
+
 async function loadAll() {
   try {
     const data = await api({action:'getAll'});
-    const sheetINR = (data.inrLog||[]).filter(r=>r[0]).map(r=>({
-      date:cleanDate(String(r[0])), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
-    }));
+    let sheetINR = parseSheetINR(data.inrLog);
     const sheetFood = (data.foodLog||[]).filter(r=>r[0]).map(r=>({
       date:cleanDate(String(r[0])),name:r[1],meal:r[2],qty:parseFloat(r[3]),unit:r[4],
-      vk:parseFloat(r[5]),kcal:parseFloat(r[6]),carb:parseFloat(r[7]),
-      protein:parseFloat(r[8]),fat:parseFloat(r[9]),ts:String(r[10])
+      vk:parseFloat(r[5])||0,kcal:parseFloat(r[6])||0,carb:parseFloat(r[7])||0,
+      protein:parseFloat(r[8])||0,fat:parseFloat(r[9])||0,ts:String(r[10])
     }));
 
-    // If sheet is empty (first time), push seed data up to Sheets
-    if (sheetINR.length === 0) {
+    // --- SMART MERGE ---
+    // Always compare sheet against the full seed.
+    // Any seed entry whose ts doesn't exist in sheet gets pushed up.
+    // This fixes the case where sheet was seeded with only partial data.
+    const sheetTSset = new Set(sheetINR.map(r=>String(r.ts)));
+    const sheetDateSet = new Set(sheetINR.map(r=>r.date));
+    const missing = ARPIT_SEED_INR.filter(r =>
+      !sheetTSset.has(String(r.ts)) && !sheetDateSet.has(r.date)
+    );
+
+    if (missing.length > 0) {
+      console.log(`Pushing ${missing.length} missing historical readings to Google Sheets...`);
       setSyncing(true);
-      let count = 0;
-      for (const r of ARPIT_SEED_INR) {
-        try { await api({action:'addINR',date:r.date,val:r.val,dose:r.dose||'',notes:r.notes||'',ts:r.ts}); count++; } catch(e){}
+      for (const r of missing) {
+        try {
+          await api({action:'addINR', date:r.date, val:r.val,
+            dose:r.dose||'', notes:r.notes||'', ts:r.ts});
+        } catch(e) { console.warn('Could not push', r.date, e); }
       }
-      console.log(`Seeded ${count} historical readings to Google Sheets`);
-      // Reload from sheet now that it's populated
+      // Re-fetch after pushing missing entries
       const data2 = await api({action:'getAll'});
-      inrLog = (data2.inrLog||[]).filter(r=>r[0]).map(r=>({
-        date:String(r[0]), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
-      })).sort((a,b)=>a.date.localeCompare(b.date));
-    } else {
-      inrLog = sheetINR.sort((a,b)=>a.date.localeCompare(b.date));
+      sheetINR = parseSheetINR(data2.inrLog);
     }
+
+    inrLog = sheetINR.sort((a,b)=>a.date.localeCompare(b.date));
     foodLog = sheetFood;
 
     if (data.settings) {
       settings = {...settings, ...data.settings};
       localStorage.setItem('inrSettings', JSON.stringify(settings));
     }
+
+    // Cache to localStorage for offline fallback
+    const cache = {
+      inrLog: inrLog,
+      foodLog: foodLog.length ? foodLog : JSON.parse(localStorage.getItem('inrOfflineData')||'{}').foodLog || []
+    };
+    localStorage.setItem('inrOfflineData', JSON.stringify(cache));
+
   } catch(e) {
-    console.error('Load failed — showing cached data:', e);
+    console.error('Load failed — showing cached/seed data:', e);
     const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
-    if (inrLog.length === 0) inrLog = local.inrLog.map(r=>({
-      date:cleanDate(String(r.date)), val:parseFloat(r.val), dose:r.dose||null, notes:r.notes||'', ts:String(r.ts||r.date)
-    })).sort((a,b)=>a.date.localeCompare(b.date));
-    if (foodLog.length === 0) foodLog = local.foodLog.map(r=>({
-      date:cleanDate(String(r.date)),name:r.name,meal:r.meal,qty:parseFloat(r.qty),unit:r.unit,
-      vk:parseFloat(r.vk)||0,kcal:parseFloat(r.kcal)||0,carb:parseFloat(r.carb)||0,
-      protein:parseFloat(r.protein)||0,fat:parseFloat(r.fat)||0,ts:String(r.ts),sample:r.sample||false
+    // Always fall back to full seed if cache has less than expected
+    const cachedINR = (local.inrLog||[]).map(r=>({
+      date:cleanDate(String(r.date)), val:parseFloat(r.val),
+      dose:r.dose||null, notes:r.notes||'', ts:String(r.ts||r.date)
     }));
+    // Merge cache with seed so offline always shows full history
+    const cacheDateSet = new Set(cachedINR.map(r=>r.date));
+    const seedFallback = ARPIT_SEED_INR.filter(r=>!cacheDateSet.has(r.date));
+    inrLog = [...cachedINR, ...seedFallback].sort((a,b)=>a.date.localeCompare(b.date));
+
+    if (foodLog.length === 0 && local.foodLog?.length) {
+      foodLog = local.foodLog.map(r=>({
+        date:cleanDate(String(r.date)),name:r.name,meal:r.meal,qty:parseFloat(r.qty),unit:r.unit,
+        vk:parseFloat(r.vk)||0,kcal:parseFloat(r.kcal)||0,carb:parseFloat(r.carb)||0,
+        protein:parseFloat(r.protein)||0,fat:parseFloat(r.fat)||0,
+        ts:String(r.ts),sample:r.sample||false
+      }));
+    }
   }
   renderAll();
 }
