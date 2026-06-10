@@ -1489,17 +1489,35 @@ let offlineMode = false; // always connected — URL is hardcoded
 // ─── API ─────────────────────────────────────────────────────────────────────
 async function api(params) {
   if (offlineMode) return offlineApi(params);
-  const url = new URL(SCRIPT_URL);
-  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
   setSyncing(true);
   try {
-    const res = await fetch(url.toString());
+    // Use GET for reads (getAll), POST for writes — avoids URL length/encoding issues
+    let res;
+    if (params.action === 'getAll') {
+      const url = new URL(SCRIPT_URL);
+      url.searchParams.set('action', 'getAll');
+      res = await fetch(url.toString());
+    } else {
+      // POST with form-encoded body — Apps Script doPost handles this reliably
+      const body = new URLSearchParams();
+      Object.entries(params).forEach(([k,v]) => body.append(k, v==null?'':String(v)));
+      res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: body,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+    }
     const data = await res.json();
     setSyncing(false);
     if (data.error) throw new Error(data.error);
     return data;
   } catch(e) {
     setSyncing(false, true);
+    // For write operations, fall back to offline storage silently
+    if (params.action !== 'getAll') {
+      console.warn('API write failed, saving locally:', e.message);
+      return offlineApi(params);
+    }
     throw e;
   }
 }
@@ -1787,27 +1805,35 @@ async function logINR() {
   const notes = document.getElementById('inrNotes').value;
   if (!val||!date) { alert('Please enter INR value and date.'); return; }
   const btn = document.getElementById('saveInrBtn');
-  btn.disabled=true; btn.textContent='Saving…';
+  if (btn) { btn.disabled=true; btn.textContent='Saving…'; }
+  const entryTs = Date.now().toString();
   try {
-    await api({action:'addINR',date,val,dose,notes,ts:Date.now().toString()});
-    inrLog.push({date,val,dose,notes,ts:Date.now().toString()});
+    await api({action:'addINR', date, val, dose:dose||'', notes, ts:entryTs});
+    inrLog.push({date, val, dose, notes, ts:entryTs});
     inrLog.sort((a,b)=>a.date.localeCompare(b.date));
     setEl('inrSaveMsg','textContent',`✓ INR ${val} saved`);
     setEl('inrValue','value','');
     setEl('inrNotes','value','');
     setTimeout(()=>setEl('inrSaveMsg','textContent',''),3000);
     renderAll();
-  } catch(e) { alert('Save failed: '+e.message); }
-  btn.disabled=false; btn.textContent='Save to Google Sheets';
+  } catch(e) {
+    console.error('logINR failed:', e);
+    setEl('inrSaveMsg','textContent','❌ Save failed');
+  } finally {
+    if (btn) { btn.disabled=false; btn.textContent='Save to Google Sheets'; }
+  }
 }
 
 async function deleteINR(ts) {
   if (!confirm('Delete this INR reading?')) return;
+  // Optimistically remove from UI immediately
+  inrLog = inrLog.filter(r=>String(r.ts)!==String(ts));
+  renderAll();
   try {
-    await api({action:'deleteINR',ts:String(ts)});
-    inrLog = inrLog.filter(r=>String(r.ts)!==String(ts));
-    renderAll();
-  } catch(e) { alert('Delete failed: '+e.message); }
+    await api({action:'deleteINR', ts:String(ts)});
+  } catch(e) {
+    console.warn('deleteINR remote failed (removed locally):', e.message);
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1852,39 +1878,51 @@ function updateFoodPreview() {
 
 async function addFood() {
   if (!selectedFood) return;
-  const qty = parseFloat(document.getElementById('foodQty').value)||1;
-  const unit = document.getElementById('foodUnit').value;
-  const meal = document.getElementById('mealType').value;
-  const date = document.getElementById('foodDate').value||today();
-  const ts = Date.now().toString();
+  const qty  = parseFloat(document.getElementById('foodQty')?.value)||1;
+  const unit = document.getElementById('foodUnit')?.value || 'serving';
+  const meal = document.getElementById('mealType')?.value || 'Snack';
+  const date = document.getElementById('foodDate')?.value || today();
+  const ts   = Date.now().toString();
+  const foodName = selectedFood[0];
   const entry = {
-    date,name:selectedFood[0],meal,qty,unit,ts,
-    vk:parseFloat((selectedFood[2]*qty).toFixed(1)),
-    kcal:parseFloat((selectedFood[3]*qty).toFixed(1)),
-    carb:parseFloat((selectedFood[4]*qty).toFixed(1)),
+    date, name:foodName, meal, qty, unit, ts,
+    vk:     parseFloat((selectedFood[2]*qty).toFixed(1)),
+    kcal:   parseFloat((selectedFood[3]*qty).toFixed(1)),
+    carb:   parseFloat((selectedFood[4]*qty).toFixed(1)),
     protein:parseFloat((selectedFood[5]*qty).toFixed(1)),
-    fat:parseFloat((selectedFood[6]*qty).toFixed(1))
+    fat:    parseFloat((selectedFood[6]*qty).toFixed(1))
   };
   const btn = document.getElementById('addFoodBtn');
-  btn.disabled=true; btn.textContent='Saving…';
+  const msg = document.getElementById('addFoodMsg');
+  if (btn) { btn.disabled=true; btn.textContent='Saving…'; }
   try {
-    await api({action:'addFood',...entry});
+    await api({action:'addFood', ...entry});
     foodLog.push(entry);
-    document.getElementById('addFoodMsg').textContent=`✓ Added ${selectedFood[0]}`;
-    setTimeout(()=>document.getElementById('addFoodMsg').textContent='',2500);
+    if (msg) { msg.textContent=`✓ Added ${foodName}`; setTimeout(()=>{ if(msg) msg.textContent=''; },2500); }
+    clearFoodForm(); // resets selectedFood to null
+    renderAll();
+  } catch(e) {
+    console.error('addFood failed:', e);
+    if (msg) msg.textContent = '❌ Save failed — check connection';
+    // Still add to local display even if Sheets failed (api() falls back to offline)
+    if (!foodLog.find(f=>f.ts===ts)) foodLog.push(entry);
     clearFoodForm();
     renderAll();
-  } catch(e) { alert('Save failed: '+e.message); }
-  btn.disabled=false; btn.textContent='Save to Sheets';
-  document.getElementById('addFoodBtn').disabled = selectedFood ? false : true;
+  } finally {
+    // Button stays disabled after clear (selectedFood is null) — correct behaviour
+    if (btn) { btn.disabled=true; btn.textContent='+ Add to Log'; }
+  }
 }
 
 async function deleteFood(ts) {
+  // Optimistically remove from UI immediately
+  foodLog = foodLog.filter(f=>String(f.ts)!==String(ts));
+  renderAll();
   try {
-    await api({action:'deleteFood',ts:String(ts)});
-    foodLog = foodLog.filter(f=>String(f.ts)!==String(ts));
-    renderAll();
-  } catch(e) { alert('Delete failed: '+e.message); }
+    await api({action:'deleteFood', ts:String(ts)});
+  } catch(e) {
+    console.warn('deleteFood remote failed (removed locally):', e.message);
+  }
 }
 
 function clearFoodForm() {
