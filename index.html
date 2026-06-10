@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Arpit INR Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -154,10 +154,140 @@
   .spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  @media(max-width:500px){
+  /* RANGE BUTTONS */
+  .range-btn{padding:5px 12px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+  .range-btn.active,.range-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* MACRO BARS (MFP style) */
+  .macro-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .macro-bar-label{font-size:12px;color:var(--muted);width:52px;flex-shrink:0}
+  .macro-bar-track{flex:1;height:8px;background:var(--border);border-radius:8px;overflow:hidden}
+  .macro-bar-fill{height:100%;border-radius:8px;transition:width .5s ease;width:0%}
+  .macro-bar-val{font-size:12px;font-family:var(--mono);width:52px;text-align:right;color:var(--text);flex-shrink:0}
+
+  /* NUTRIENT CELLS */
+  .nutrient-cell{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center}
+  .nutrient-val{font-family:var(--mono);font-size:15px;font-weight:500}
+  .nutrient-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+
+  /* MEAL SECTION (MFP style) */
+  .meal-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .meal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border)}
+  .meal-header-name{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .meal-header-stats{font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .meal-food-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px}
+  .meal-food-row:last-child{border-bottom:none}
+  .meal-food-name{flex:1;font-size:13px;font-weight:500}
+  .meal-food-portion{font-size:11px;color:var(--muted);margin-top:1px}
+  .meal-food-nutrients{display:flex;gap:10px;flex-shrink:0;font-size:12px;font-family:var(--mono)}
+  .meal-food-nutrients span{color:var(--muted)}
+  .meal-food-kcal{font-weight:500;color:var(--text);min-width:38px;text-align:right}
+  .meal-total-row{display:flex;justify-content:space-between;padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);background:var(--surface2)}
+
+  /* GOAL PILLS */
+  .goal-pill{flex:1;min-width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center}
+  .goal-pill-val{font-family:var(--mono);font-size:15px;font-weight:500}
+  .goal-pill-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+  .goal-pill-rem{font-size:10px;color:var(--muted);margin-top:2px}
+
+  /* INSIGHTS */
+  .insight-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .insight-row:last-child{border-bottom:none}
+  .insight-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .insight-title{font-size:13px;font-weight:600;margin-bottom:3px}
+  .insight-body{font-size:12px;color:var(--muted);line-height:1.5}
+
+  /* VK consistency strip */
+  .vk-day-cell{flex:1;min-width:36px;text-align:center;padding:6px 2px;border-radius:8px;cursor:default}
+  .vk-day-date{font-size:9px;color:var(--muted);font-family:var(--mono);margin-bottom:3px}
+  .vk-day-val{font-size:11px;font-weight:600;font-family:var(--mono)}
+  .vk-day-bar{height:4px;border-radius:4px;margin:3px auto 0;transition:width .3s}
+
+  /* VK heatmap */
+  .heatmap-cell{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--mono);cursor:pointer;position:relative}
+  .heatmap-cell:hover .heatmap-tip{display:block}
+  .heatmap-tip{display:none;position:absolute;bottom:32px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:4px 8px;border-radius:5px;font-size:10px;white-space:nowrap;z-index:10}
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media(max-width:600px){
+    /* Layout */
+    main{padding:12px 10px}
+    .card{padding:14px 12px;margin-bottom:12px}
+
+    /* Header */
+    header{padding:0 12px;height:52px}
+    .logo-text{font-size:14px}
+    .logo-sub{font-size:10px}
+    .date-display{font-size:11px}
+
+    /* Tabs — scrollable, smaller */
+    .tabs{padding:0 8px;gap:0}
+    .tab{padding:10px 10px;font-size:12px}
+
+    /* Sync bar */
+    #syncBar{padding:4px 12px;font-size:11px}
+
+    /* Forms */
     .form-row{grid-template-columns:1fr}
-    .inr-gauge-wrap{flex-direction:column}
+    input[type="number"],input[type="date"],input[type="text"],select,textarea{
+      font-size:16px !important; /* prevents iOS zoom */
+      padding:10px 12px
+    }
+
+    /* INR gauge — stack vertically */
+    .inr-gauge-wrap{flex-direction:column;align-items:center}
     .gauge-container{margin:0 auto}
+    .inr-status-block{width:100%;text-align:center}
+    .inr-status-badge{margin:0 auto 8px}
+
+    /* Macro pills on today tab */
+    .macro-row{gap:6px}
+    .macro-pill{min-width:70px;padding:8px 6px}
+    .macro-val{font-size:15px}
+
+    /* Food log — MFP style */
+    .meal-food-nutrients{display:none} /* hide on very small, show kcal only */
+    .meal-food-row{padding:8px 12px}
+    .meal-header{padding:10px 12px}
+    .macro-bar-label{width:44px;font-size:11px}
+    .macro-bar-val{width:44px;font-size:11px}
+
+    /* Food date nav */
+    #panel-food > div:first-child{gap:6px}
+    #panel-food > div:first-child input{font-size:13px !important;padding:7px 8px}
+
+    /* Daily summary ring */
+    .goal-pill{min-width:60px;padding:6px 6px}
+    .goal-pill-val{font-size:13px}
+    .goal-pill-lbl{font-size:9px}
+    .goal-pill-rem{font-size:9px}
+
+    /* Chart range buttons */
+    .range-btn{padding:5px 9px;font-size:11px}
+    #chartFrom,#chartTo{font-size:11px !important;padding:4px 6px}
+
+    /* History items */
+    .history-item{gap:6px;padding:8px 10px;flex-wrap:wrap}
+    .history-date{min-width:80px;font-size:11px}
+    .history-inr{font-size:16px;min-width:40px}
+    .history-note{font-size:11px;max-width:100%;white-space:normal}
+
+    /* VK guide table */
+    .food-table{font-size:12px}
+    .food-table td,.food-table th{padding:7px 6px}
+
+    /* Buttons */
+    .btn{padding:9px 14px;font-size:13px}
+    .btn-sm{padding:5px 8px;font-size:11px}
+
+    /* Alert text */
+    .alert{font-size:12px;padding:10px 12px}
+  }
+
+  @media(max-width:360px){
+    .tab{padding:9px 7px;font-size:11px}
+    .macro-pill{min-width:60px}
+    .goal-pill{min-width:50px}
   }
 </style>
 </head>
@@ -230,7 +360,8 @@
   <div class="tab" onclick="switchTab('log-inr')">Log INR</div>
   <div class="tab" onclick="switchTab('food')">Food Log</div>
   <div class="tab" onclick="switchTab('history')">History</div>
-  <div class="tab" onclick="switchTab('vkguide')">Vitamin K Guide</div>
+  <div class="tab" onclick="switchTab('insights')">💡 Insights</div>
+  <div class="tab" onclick="switchTab('vkguide')">Vit K Guide</div>
   <div class="tab" onclick="switchTab('settings')">Settings</div>
 </div>
 
@@ -238,6 +369,8 @@
 
   <!-- TODAY -->
   <div class="panel active" id="panel-today">
+
+    <!-- INR Status card -->
     <div class="card" id="inr-status-card">
       <div class="card-title">Current INR Status</div>
       <div id="risingAlert" class="alert alert-warn" style="display:none;margin-bottom:14px">
@@ -266,38 +399,62 @@
       </div>
     </div>
 
+    <!-- VK consistency strip — the most important thing for warfarin -->
     <div class="card">
-      <div class="card-title">Today's Vitamin K</div>
-      <div class="vk-summary">
-        <div>
-          <div class="vk-total-display" id="todayVKTotal">0 <span style="font-size:14px;color:var(--muted)">mcg</span></div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">of <span id="vkGoalDisplay">90</span> mcg goal</div>
-        </div>
-        <div class="vk-meter-wrap">
-          <div style="font-size:12px;color:var(--muted)">Daily Vitamin K</div>
-          <div class="vk-meter-track"><div class="vk-meter-fill" id="vkMeterFill" style="width:0%;background:var(--good)"></div></div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px"><span>0</span><span>Goal</span><span>2×</span></div>
-        </div>
-      </div>
-      <div class="alert alert-info" style="margin-top:14px;margin-bottom:0">
+      <div class="card-title">Vitamin K — 7-Day Consistency</div>
+      <div id="vkConsistencyStrip"></div>
+      <div class="alert alert-info" style="margin-top:12px;margin-bottom:0;font-size:12px">
         <span class="alert-icon">💡</span>
-        <div>Keep Vitamin K <strong>consistent</strong> day to day — not necessarily low. Sudden changes destabilise INR.</div>
+        <div>INR stability depends on <strong>consistent</strong> Vitamin K day-to-day, not total amount. Aim for the same intake every day.</div>
       </div>
     </div>
 
+    <!-- Today's VK + quick macros -->
     <div class="card">
-      <div class="card-title">Today's Nutrition</div>
-      <div class="macro-row">
-        <div class="macro-pill"><div class="macro-val" id="macroKcal">0</div><div class="macro-lbl">Calories</div></div>
-        <div class="macro-pill"><div class="macro-val" id="macroCarb">0g</div><div class="macro-lbl">Carbs</div></div>
-        <div class="macro-pill"><div class="macro-val" id="macroProtein">0g</div><div class="macro-lbl">Protein</div></div>
-        <div class="macro-pill"><div class="macro-val" id="macroFat">0g</div><div class="macro-lbl">Fat</div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div class="card-title" style="margin-bottom:10px">Today's Vitamin K</div>
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <div class="vk-total-display" id="todayVKTotal">0</div>
+            <div style="font-size:13px;color:var(--muted)">mcg</div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin:2px 0 8px">goal: <span id="vkGoalDisplay">90</span> mcg</div>
+          <div class="vk-meter-track" style="height:12px">
+            <div class="vk-meter-fill" id="vkMeterFill" style="width:0%;background:var(--good)"></div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:160px">
+          <div class="card-title" style="margin-bottom:10px">Today's Macros</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="macro-bar-row" style="margin-bottom:0">
+              <span class="macro-bar-label" style="width:56px">Calories</span>
+              <div class="macro-bar-track"><div class="macro-bar-fill" id="todayKcalBar" style="background:#6366f1"></div></div>
+              <span class="macro-bar-val" id="macroKcal" style="width:48px">0</span>
+            </div>
+            <div class="macro-bar-row" style="margin-bottom:0">
+              <span class="macro-bar-label" style="width:56px">Carbs</span>
+              <div class="macro-bar-track"><div class="macro-bar-fill" id="todayCarbBar" style="background:#f59e0b"></div></div>
+              <span class="macro-bar-val" id="macroCarb" style="width:48px">0g</span>
+            </div>
+            <div class="macro-bar-row" style="margin-bottom:0">
+              <span class="macro-bar-label" style="width:56px">Protein</span>
+              <div class="macro-bar-track"><div class="macro-bar-fill" id="todayProtBar" style="background:#3b82f6"></div></div>
+              <span class="macro-bar-val" id="macroProtein" style="width:48px">0g</span>
+            </div>
+            <div class="macro-bar-row" style="margin-bottom:0">
+              <span class="macro-bar-label" style="width:56px">Fat</span>
+              <div class="macro-bar-track"><div class="macro-bar-fill" id="todayFatBar" style="background:#8b5cf6"></div></div>
+              <span class="macro-bar-val" id="macroFat" style="width:48px">0g</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Today's food log preview -->
     <div class="card">
       <div class="card-title">Today's Food</div>
-      <div id="todayFoodList"><div class="empty-state"><div class="empty-icon">🥗</div><div>No foods logged today.</div></div></div>
+      <div id="todayFoodList"><div class="empty-state"><div class="empty-icon">🥗</div><div>No foods logged today.<br><small style="color:var(--muted)">Tap Food Log to add meals</small></div></div></div>
     </div>
   </div>
 
@@ -331,12 +488,60 @@
 
   <!-- FOOD LOG -->
   <div class="panel" id="panel-food">
+
+    <!-- Date picker for food log -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="shiftFoodDate(-1)">← Prev</button>
+      <input type="date" id="foodViewDate" onchange="renderFoodLog()" style="font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;flex:1;text-align:center">
+      <button class="btn btn-ghost btn-sm" onclick="shiftFoodDate(1)">Next →</button>
+    </div>
+
+    <!-- Daily summary — MFP style -->
+    <div class="card" id="dailySummaryCard">
+      <div class="card-title">Daily Summary</div>
+      <!-- Calorie ring + macros -->
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+        <div style="position:relative;width:90px;height:90px;flex-shrink:0">
+          <canvas id="kcalRing" width="90" height="90"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+            <div style="font-family:var(--mono);font-size:16px;font-weight:500;line-height:1" id="ringKcal">0</div>
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">kcal</div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:180px">
+          <div class="macro-bar-row">
+            <span class="macro-bar-label">Carbs</span>
+            <div class="macro-bar-track"><div class="macro-bar-fill" id="carbBar" style="background:#f59e0b"></div></div>
+            <span class="macro-bar-val" id="carbVal">0g</span>
+          </div>
+          <div class="macro-bar-row">
+            <span class="macro-bar-label">Protein</span>
+            <div class="macro-bar-track"><div class="macro-bar-fill" id="protBar" style="background:#3b82f6"></div></div>
+            <span class="macro-bar-val" id="protVal">0g</span>
+          </div>
+          <div class="macro-bar-row">
+            <span class="macro-bar-label">Fat</span>
+            <div class="macro-bar-track"><div class="macro-bar-fill" id="fatBar" style="background:#8b5cf6"></div></div>
+            <span class="macro-bar-val" id="fatVal">0g</span>
+          </div>
+          <div class="macro-bar-row">
+            <span class="macro-bar-label">🥬 Vit K</span>
+            <div class="macro-bar-track"><div class="macro-bar-fill" id="vkBar" style="background:#10b981"></div></div>
+            <span class="macro-bar-val" id="vkVal">0mcg</span>
+          </div>
+        </div>
+      </div>
+      <!-- Goals row -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:space-between" id="goalPills"></div>
+    </div>
+
+    <!-- Add food -->
     <div class="card">
       <div class="card-title">Add Food</div>
       <div class="form-row">
         <div style="position:relative">
           <label>Search Food</label>
-          <input type="text" id="foodSearch" placeholder="spinach, chicken, dal…" oninput="searchFood()" autocomplete="off">
+          <input type="text" id="foodSearch" placeholder="palak, methi, dal, roti, paneer…" oninput="searchFood()" autocomplete="off">
           <div class="food-search-results" id="foodSearchResults"></div>
         </div>
         <div><label>Meal</label><select id="mealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></div>
@@ -347,38 +552,167 @@
           <div><label>Unit</label><select id="foodUnit" onchange="updateFoodPreview()"><option>serving</option><option>grams</option><option>cup</option><option>tbsp</option><option>oz</option><option>piece</option></select></div>
         </div>
         <div id="foodPreviewCard" style="background:var(--accent-l);border:1.5px solid #bfdbfe;border-radius:8px;padding:12px;font-size:13px;margin-bottom:12px">
-          <div style="font-weight:600;margin-bottom:6px" id="previewName">–</div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;color:var(--muted)">
-            <span>🥬 VK: <strong id="previewVK">–</strong> mcg</span>
-            <span>🔥 <strong id="previewKcal">–</strong> kcal</span>
-            <span>🍞 <strong id="previewCarb">–</strong>g carbs</span>
-            <span>💪 <strong id="previewProt">–</strong>g protein</span>
+          <div style="font-weight:600;margin-bottom:8px" id="previewName">–</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px">
+            <div class="nutrient-cell"><div class="nutrient-val" id="previewKcal">–</div><div class="nutrient-lbl">Calories</div></div>
+            <div class="nutrient-cell"><div class="nutrient-val" id="previewCarb">–</div><div class="nutrient-lbl">Carbs (g)</div></div>
+            <div class="nutrient-cell"><div class="nutrient-val" id="previewProt">–</div><div class="nutrient-lbl">Protein (g)</div></div>
+            <div class="nutrient-cell"><div class="nutrient-val" id="previewFat">–</div><div class="nutrient-lbl">Fat (g)</div></div>
+            <div class="nutrient-cell" style="border-color:#10b981"><div class="nutrient-val" style="color:#10b981" id="previewVK">–</div><div class="nutrient-lbl">Vit K (mcg)</div></div>
           </div>
         </div>
       </div>
-      <div class="form-row single"><div><label>Date</label><input type="date" id="foodDate"></div></div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <button class="btn btn-primary" id="addFoodBtn" onclick="addFood()" disabled>Save to Sheets</button>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" id="addFoodBtn" onclick="addFood()" disabled>+ Add to Log</button>
         <button class="btn btn-ghost" onclick="clearFoodForm()">Clear</button>
         <span id="addFoodMsg" style="font-size:13px;color:var(--good)"></span>
       </div>
     </div>
+
+    <!-- Meal-by-meal breakdown MFP style -->
+    <div id="foodLogList"></div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="panel" id="panel-insights">
+
+    <!-- INR Jump Analyser -->
     <div class="card">
-      <div class="card-title">Today's Log</div>
-      <div id="foodLogList"><div class="empty-state"><div class="empty-icon">🍽️</div><div>Nothing logged yet today.</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔍</div>
+        <div>
+          <div style="font-size:15px;font-weight:600">Why did my INR jump?</div>
+          <div style="font-size:12px;color:var(--muted)">Select two readings to compare what changed</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label>Reading A (before)</label><select id="compareA" onchange="runComparison()"></select></div>
+        <div><label>Reading B (after)</label><select id="compareB" onchange="runComparison()"></select></div>
+      </div>
+      <div id="comparisonResult"></div>
     </div>
+
+    <!-- VK Consistency score -->
+    <div class="card">
+      <div class="card-title">Vitamin K Consistency Score</div>
+      <div id="vkConsistencyScore"></div>
+    </div>
+
+    <!-- What affects INR besides food -->
+    <div class="card">
+      <div class="card-title">Common Reasons for Unexpected INR Changes</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#fee2e2">🌿</div>
+          <div><div class="insight-title">Vitamin K spike or drop</div><div class="insight-body">Eating significantly more or less green vegetables than usual — even a single large salad day or skipping greens entirely can shift INR by 0.5–1.0 points within 2–3 days.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#fef3c7">💊</div>
+          <div><div class="insight-title">Missed or extra warfarin dose</div><div class="insight-body">A single missed dose raises INR within 24–48h. Taking a double dose to compensate makes it worse. Always take the same time each day.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#ede9fe">🍺</div>
+          <div><div class="insight-title">Alcohol</div><div class="insight-body">Even 1–2 drinks can raise INR by inhibiting warfarin metabolism. Heavy drinking can cause dangerous spikes. Even moderate alcohol is unpredictable on warfarin.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#ecfdf5">🤒</div>
+          <div><div class="insight-title">Illness, fever or diarrhoea</div><div class="insight-body">Fever increases warfarin's effect (raises INR). Diarrhoea reduces vitamin K absorption. Both can cause significant unexpected INR changes.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#eff6ff">💊</div>
+          <div><div class="insight-title">Other medications (including OTC)</div><div class="insight-body">Antibiotics, antifungals, aspirin, ibuprofen, omeprazole, many supplements (fish oil, vitamin E, turmeric, ginger) all interact with warfarin. Always tell your doctor about any new medication.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#fdf4ff">🧄</div>
+          <div><div class="insight-title">Herbs and Indian spices (in large amounts)</div><div class="insight-body">Ginger, garlic, turmeric, fenugreek (methi), coriander and cumin can enhance warfarin's effect in medicinal quantities. Cooking amounts are generally safe if consistent.</div></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-icon" style="background:#fff7ed">☀️</div>
+          <div><div class="insight-title">Seasonal / dietary pattern changes</div><div class="insight-body">Festival seasons, travel, eating out more, or change in appetite due to weather often change diet patterns without conscious awareness — leading to unexpected INR shifts.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7-day VK heatmap -->
+    <div class="card">
+      <div class="card-title">Vitamin K Intake — Past 30 Days</div>
+      <div id="vkHeatmap" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>
+      <div style="display:flex;gap:12px;margin-top:10px;font-size:11px;color:var(--muted)">
+        <span>🟩 Below goal</span><span>🟨 At goal</span><span>🟥 Spike (2×+)</span><span>⬜ No data</span>
+      </div>
+    </div>
+
+    <!-- Macro trend chart (weekly averages) -->
+    <div class="card">
+      <div class="card-title">Weekly Average Vitamin K — Overlaid with INR</div>
+      <div style="display:flex;gap:0">
+        <div id="overlayYAxis" style="width:32px;flex-shrink:0;position:relative"></div>
+        <div style="flex:1;position:relative">
+          <canvas id="overlayChart" height="160"></canvas>
+        </div>
+      </div>
+      <div id="overlayXAxis" style="padding-left:32px;font-size:10px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;font-family:var(--mono)"></div>
+      <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:16px;height:3px;background:#3b82f6;display:inline-block"></span>INR</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:16px;height:3px;background:#10b981;display:inline-block;border-top:2px dashed #10b981"></span>Vit K (weekly avg mcg)</span>
+      </div>
+    </div>
+
   </div>
 
   <!-- HISTORY -->
+  <!-- HISTORY -->
   <div class="panel" id="panel-history">
     <div class="card">
-      <div class="card-title">INR Trend — All Time</div>
-      <canvas id="inrChart" height="130"></canvas>
+      <div class="card-title">INR Trend</div>
+      <!-- Date range slicer -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <div style="display:flex;gap:4px">
+          <button class="range-btn active" onclick="setRange(90,this)">3M</button>
+          <button class="range-btn" onclick="setRange(180,this)">6M</button>
+          <button class="range-btn" onclick="setRange(365,this)">1Y</button>
+          <button class="range-btn" onclick="setRange(99999,this)">All</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap">
+          <input type="date" id="chartFrom" onchange="renderCharts()" style="font-size:12px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px">
+          <span style="font-size:12px;color:var(--muted)">to</span>
+          <input type="date" id="chartTo" onchange="renderCharts()" style="font-size:12px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px">
+        </div>
+      </div>
+      <!-- Chart with y-axis -->
+      <div style="display:flex;gap:0">
+        <div id="inrYAxis" style="width:32px;flex-shrink:0;position:relative"></div>
+        <div style="flex:1;position:relative">
+          <canvas id="inrChart" height="160"></canvas>
+          <div id="inrTooltip" style="display:none;position:absolute;background:var(--text);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;pointer-events:none;z-index:10;white-space:nowrap"></div>
+        </div>
+      </div>
+      <!-- X-axis dates -->
+      <div id="inrXAxis" style="display:flex;justify-content:space-between;padding:4px 0 0 32px;font-size:10px;color:var(--muted);font-family:var(--mono)"></div>
+      <!-- Legend -->
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:12px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>In range</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Below target</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block"></span>Above target</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:16px;height:3px;background:rgba(16,185,129,0.5);display:inline-block"></span>Target band</span>
+      </div>
+      <!-- Stats strip -->
+      <div id="inrStatsStrip" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"></div>
+    </div>
+
+    <!-- INR reading list -->
+    <div class="card">
+      <div class="card-title">Reading Log</div>
       <div style="margin-top:16px" id="inrHistoryList"><div class="loading-overlay"><div class="spinner"></div><div>Loading…</div></div></div>
     </div>
+
     <div class="card">
       <div class="card-title">Vitamin K — Past 7 Days</div>
-      <canvas id="vkChart" height="100"></canvas>
+      <div style="display:flex;gap:0">
+        <div id="vkYAxis" style="width:32px;flex-shrink:0"></div>
+        <div style="flex:1"><canvas id="vkChart" height="110"></canvas></div>
+      </div>
+      <div id="vkXAxis" style="display:flex;justify-content:space-between;padding:4px 0 0 32px;font-size:10px;color:var(--muted);font-family:var(--mono)"></div>
     </div>
   </div>
 
@@ -386,18 +720,18 @@
   <div class="panel" id="panel-vkguide">
     <div class="alert alert-info">
       <span class="alert-icon">ℹ️</span>
-      <div>On warfarin, aim for <strong>consistent</strong> Vitamin K intake — not avoidance. Sudden spikes or drops cause INR instability.</div>
+      <div>On warfarin, keep Vitamin K <strong>consistent</strong> day to day — not low. Palak, methi, bathua and moringa are the biggest sources. Eat them regularly in similar amounts — don't avoid them one day and eat a lot the next.</div>
     </div>
     <div class="card">
-      <div class="card-title">🔴 High Vitamin K (&gt;100 mcg/serving) — Keep Consistent</div>
+      <div class="card-title">🔴 High Vitamin K (≥100 mcg) — Palak, Methi, Bathua, Sarson, Moringa</div>
       <table class="food-table"><thead><tr><th>Food</th><th>Serving</th><th>VK mcg</th><th></th></tr></thead><tbody id="vkHighTable"></tbody></table>
     </div>
     <div class="card">
-      <div class="card-title">🟡 Medium Vitamin K (20–100 mcg)</div>
+      <div class="card-title">🟡 Medium Vitamin K (20–99 mcg) — Broccoli, Bhindi, Cabbage, Gawar</div>
       <table class="food-table"><thead><tr><th>Food</th><th>Serving</th><th>VK mcg</th><th></th></tr></thead><tbody id="vkMedTable"></tbody></table>
     </div>
     <div class="card">
-      <div class="card-title">🟢 Low Vitamin K (&lt;20 mcg) — Freely Eat</div>
+      <div class="card-title">🟢 Low Vitamin K (&lt;20 mcg) — Dals, Roti, Rice, Most Sabzis — Eat Freely</div>
       <table class="food-table"><thead><tr><th>Food</th><th>Serving</th><th>VK mcg</th><th></th></tr></thead><tbody id="vkLowTable"></tbody></table>
     </div>
   </div>
@@ -433,17 +767,44 @@
     </div>
     <button class="btn btn-primary" onclick="saveSettings()">Save Settings to Sheets</button>
 
+    <!-- Data Management -->
     <div class="card" style="margin-top:16px">
-      <div class="card-title">📤 Backup / Restore</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">
-        Your data lives in <strong>Google Sheets</strong> permanently. The sheet itself is the backup — share it with family via Google Drive. For an extra local backup:
+      <div class="card-title">🗂️ Data Management</div>
+
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Delete by date range</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <input type="date" id="deleteFrom" style="font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px">
+        <span style="font-size:12px;color:var(--muted)">to</span>
+        <input type="date" id="deleteTo" style="font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px">
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="exportJSON()">📥 Download JSON backup</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">📤 Restore from JSON</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-danger btn-sm" onclick="deleteByRange('food')">🗑️ Delete food entries in range</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteByRange('inr')">🗑️ Delete INR readings in range</button>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Sample data</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">The app ships with 7 days of sample meals to demonstrate the Insights tab. Delete them once you start logging real food.</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteSampleData()">🗑️ Delete all sample food data</button>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Fix a mistake</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">To correct a wrong entry: delete it from the History tab (INR) or Food Log tab (food), then re-add with the correct values.</div>
+        <button class="btn btn-ghost btn-sm" onclick="switchTab('history')">→ Go to History</button>
+        <button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="switchTab('food')">→ Go to Food Log</button>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Backup &amp; restore</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="exportJSON()">📥 Download JSON backup</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">📤 Restore from JSON</button>
+        </div>
       </div>
     </div>
+
     <div style="margin-top:20px;font-size:12px;color:var(--muted);line-height:1.7">
       <strong>Disclaimer:</strong> For personal tracking only. Always follow your doctor's instructions. Do not make dosing decisions based on this app.
     </div>
@@ -454,37 +815,265 @@
 // ═══════════════════════════════════════════════
 //  FOOD DATABASE
 // ═══════════════════════════════════════════════
+// Indian Vegetarian Food Database
+// Format: [name, serving, vit_k_mcg, kcal, carb_g, protein_g, fat_g]
+// 🔴 HIGH VK (≥100 mcg) | 🟡 MEDIUM VK (20–99 mcg) | 🟢 LOW VK (<20 mcg)
+
 const FOODS = [
-  ["Kale (cooked)","½ cup",531,18,4,1,0],["Swiss chard (cooked)","½ cup",287,18,4,2,0],
-  ["Spinach (cooked)","½ cup",444,21,3,3,0],["Spinach (raw)","1 cup",145,7,1,1,0],
-  ["Collard greens (cooked)","½ cup",530,25,5,2,0],["Broccoli (cooked)","½ cup",110,27,6,2,0],
-  ["Brussels sprouts","½ cup",150,28,6,2,0],["Cabbage (raw)","1 cup",68,22,5,1,0],
-  ["Parsley (fresh)","¼ cup",246,5,1,0,0],["Cilantro","¼ cup",62,1,0,0,0],
-  ["Green onion/scallion","¼ cup",103,8,2,1,0],["Beet greens (cooked)","½ cup",349,19,4,2,0],
-  ["Mustard greens","½ cup",419,11,2,2,0],["Endive (raw)","1 cup",116,9,2,1,0],
-  ["Lettuce, Romaine","1 cup",57,8,2,1,0],["Lettuce, Iceberg","1 cup",13,10,2,1,0],
-  ["Asparagus","4 spears",48,13,3,1,0],["Edamame","½ cup",26,94,8,9,4],
-  ["Green peas","½ cup",21,62,11,4,0],["Cucumber (with peel)","1 cup",17,16,4,1,0],
-  ["Cauliflower","½ cup",9,14,3,1,0],["Celery","1 stalk",29,6,1,0,0],
-  ["Carrot","1 medium",8,25,6,1,0],["Avocado","½ fruit",21,120,6,1,11],
-  ["Green bell pepper","1 cup",11,30,7,1,0],["Blueberries","½ cup",14,42,11,1,0],
-  ["Soybean oil","1 tbsp",25,120,0,0,14],["Canola oil","1 tbsp",10,124,0,0,14],
-  ["Chicken breast","3 oz",0,140,0,26,3],["Salmon","3 oz",0,175,0,19,10],
-  ["Egg","1 large",0,70,0,6,5],["White rice (cooked)","½ cup",0,103,23,2,0],
-  ["Brown rice (cooked)","½ cup",1,108,22,2,1],["Whole wheat bread","1 slice",1,80,15,3,1],
-  ["Oatmeal (cooked)","½ cup",0,83,14,3,2],["Banana","1 medium",0,89,23,1,0],
-  ["Apple","1 medium",3,95,25,0,0],["Orange","1 medium",0,62,15,1,0],
-  ["Mango","½ cup",3,60,15,1,0],["Milk (whole)","1 cup",0,149,12,8,8],
-  ["Yogurt (plain)","½ cup",0,77,6,4,4],["Paneer","½ cup",0,120,2,9,9],
-  ["Dal (lentils, cooked)","½ cup",2,115,20,9,0],["Chana dal","½ cup",1,130,22,9,2],
-  ["Toor dal","½ cup",1,120,21,8,0],["Roti (wheat)","1 piece",1,100,18,3,2],
-  ["Potato (boiled)","1 medium",2,87,20,2,0],["Sweet potato","½ cup",2,59,14,1,0],
-  ["Tomato","1 medium",9,22,5,1,0],["Onion","½ cup",0,32,7,1,0],
-  ["Garlic","1 clove",0,4,1,0,0],["Tofu (firm)","½ cup",3,94,2,10,5],
-  ["Almonds","1 oz",0,164,6,6,14],["Walnuts","1 oz",1,185,4,4,18],
-  ["Olive oil","1 tbsp",8,119,0,0,14],["Ghee","1 tsp",0,42,0,0,5],
-  ["Coffee (black)","1 cup",0,2,0,0,0],["Tea (black)","1 cup",0,2,0,0,0],
-  ["Orange juice","½ cup",0,56,13,1,0]
+  // ── 🔴 GREEN LEAFY VEGETABLES (very high VK — most important to track) ──────
+  ["Palak / Spinach (cooked)",        "1 katori (100g)",  494, 23,  3,  3,  0],
+  ["Palak / Spinach (raw)",           "1 katori (50g)",   145,  12,  2,  1,  0],
+  ["Methi / Fenugreek leaves (raw)",  "1 katori (50g)",   310,  20,  3,  3,  0],
+  ["Methi sabzi (cooked)",            "1 katori (100g)",  280,  49,  6,  4,  2],
+  ["Sarson / Mustard greens",         "1 katori (100g)",  419,  27,  5,  3,  0],
+  ["Bathua / Lamb's quarters",        "1 katori (100g)",  800,  43,  7,  4,  1],
+  ["Amaranth / Chaulai leaves",       "1 katori (100g)",  1140, 23,  4,  2,  0],
+  ["Pudina / Mint leaves (fresh)",    "2 tbsp (10g)",      56,   4,  1,  0,  0],
+  ["Dhania / Coriander leaves",       "2 tbsp (10g)",      62,   4,  1,  0,  0],
+  ["Curry leaves (kadi patta)",       "10 leaves (5g)",    31,   5,  1,  0,  0],
+  ["Drumstick leaves / Moringa",      "1 katori (50g)",   340,  37,  5,  4,  1],
+  ["Hara pyaz / Spring onion",        "2 tbsp (15g)",      31,   5,  1,  0,  0],
+  ["Suva / Dill leaves",              "1 katori (50g)",   190,  20,  2,  2,  1],
+
+  // ── 🟡 MEDIUM VK VEGETABLES ───────────────────────────────────────────────
+  ["Broccoli (cooked)",               "1 katori (100g)",  102,  35,  7,  2,  0],
+  ["Gawar phali / Cluster beans",     "1 katori (100g)",   63,  16,  4,  1,  0],
+  ["Sem / Broad beans / Val",         "1 katori (100g)",   47,  38,  7,  3,  0],
+  ["Tinda / Indian round gourd",      "1 katori (100g)",   23,  18,  4,  1,  0],
+  ["Bhindi / Okra (cooked)",          "1 katori (100g)",   31,  33,  7,  2,  0],
+  ["Shimla mirch / Green capsicum",   "1 medium (80g)",    10,  20,  5,  1,  0],
+  ["Karela / Bitter gourd",           "1 katori (100g)",   40,  17,  3,  1,  0],
+  ["Cabbage (raw)",                   "1 katori (100g)",   76,  25,  6,  1,  0],
+  ["Patta gobi / Cabbage (cooked)",   "1 katori (100g)",   56,  17,  4,  1,  0],
+  ["Phool gobi / Cauliflower",        "1 katori (100g)",   16,  25,  5,  2,  0],
+  ["Hara matar / Green peas (cooked)","1 katori (100g)",   24,  81, 14,  5,  0],
+  ["Avocado",                         "½ fruit (75g)",     21, 120,  6,  1, 11],
+  ["Cucumber with peel",              "1 katori (100g)",   16,  15,  4,  1,  0],
+  ["Soyabean oil",                    "1 tbsp (14g)",      25, 124,  0,  0, 14],
+  ["Mustard oil (sarson ka tel)",     "1 tbsp (14g)",      15, 124,  0,  0, 14],
+
+  // ── 🟢 DALS & LEGUMES (low VK — safe staples) ────────────────────────────
+  ["Toor dal (cooked)",               "1 katori (100g)",    2, 116, 20,  7,  0],
+  ["Moong dal (cooked)",              "1 katori (100g)",    3, 105, 19,  7,  0],
+  ["Moong dal (whole, cooked)",       "1 katori (100g)",    3, 112, 19,  7,  0],
+  ["Chana dal (cooked)",              "1 katori (100g)",    2, 164, 27, 10,  3],
+  ["Masoor dal (red lentil, cooked)", "1 katori (100g)",    2, 116, 20,  9,  0],
+  ["Urad dal (cooked)",               "1 katori (100g)",    2, 105, 18,  7,  0],
+  ["Rajma / Kidney beans (cooked)",   "1 katori (100g)",    8, 127, 23,  9,  1],
+  ["Chana / Chickpeas (cooked)",      "1 katori (100g)",    9, 164, 27, 10,  3],
+  ["Kala chana (cooked)",             "1 katori (100g)",    7, 164, 27,  9,  3],
+  ["Vatana / White peas (cooked)",    "1 katori (100g)",    5, 118, 21,  8,  0],
+  ["Lobiya / Black eyed peas",        "1 katori (100g)",    5, 116, 21,  8,  0],
+  ["Moth / Matki (cooked)",           "1 katori (100g)",    4, 114, 20,  7,  1],
+  ["Sprouted moong (raw)",            "1 katori (50g)",     8,  30,  6,  3,  0],
+  ["Soya chunks / Nutrela (cooked)",  "10 pieces (50g)",    4, 173,  8, 26,  1],
+
+  // ── 🟢 GRAINS & BREADS ────────────────────────────────────────────────────
+  ["Roti / Chapati (wheat)",          "1 medium roti",      1, 100, 18,  3,  2],
+  ["Paratha (plain)",                 "1 medium",           2, 200, 30,  4,  8],
+  ["Paratha (aloo stuffed)",          "1 medium",           3, 250, 38,  5,  9],
+  ["Thepla",                          "1 piece",            5, 120, 18,  3,  4],
+  ["Bajra roti",                      "1 medium roti",      0, 105, 22,  3,  1],
+  ["Jowar roti",                      "1 medium roti",      0,  95, 21,  3,  1],
+  ["Makki roti",                      "1 medium roti",      0, 100, 22,  2,  1],
+  ["Chawal / White rice (cooked)",    "1 katori (100g)",    0, 130, 28,  3,  0],
+  ["Brown rice (cooked)",             "1 katori (100g)",    1, 112, 23,  3,  1],
+  ["Khichdi (moong-rice)",            "1 katori (150g)",    2, 180, 34,  7,  2],
+  ["Idli",                            "2 pieces (80g)",     0,  76, 16,  2,  0],
+  ["Dosa (plain)",                    "1 medium",           0, 120, 22,  3,  2],
+  ["Upma",                            "1 katori (100g)",    1, 145, 22,  3,  4],
+  ["Poha (cooked)",                   "1 katori (100g)",    2, 130, 25,  3,  2],
+  ["Bread (whole wheat)",             "1 slice",            1,  80, 15,  3,  1],
+  ["Puri",                            "2 pieces",           1, 150, 18,  2,  8],
+  ["Bhakri (jowar)",                  "1 medium",           0,  95, 21,  3,  1],
+  ["Oats (cooked)",                   "1 katori (100g)",    0,  68, 12,  2,  1],
+  ["Daliya / Broken wheat (cooked)",  "1 katori (100g)",    1, 130, 27,  4,  1],
+  ["Vermicelli / Sevai (cooked)",     "1 katori (100g)",    0, 165, 35,  4,  1],
+
+  // ── 🟢 VEGETABLES (low VK — everyday sabzis) ──────────────────────────────
+  ["Aloo / Potato (boiled)",          "1 medium (100g)",    2,  87, 20,  2,  0],
+  ["Aloo sabzi (cooked)",             "1 katori (100g)",    3, 120, 22,  2,  4],
+  ["Sweet potato / Shakarkand",       "1 medium (100g)",    2,  86, 20,  2,  0],
+  ["Tamatar / Tomato",                "1 medium (100g)",    8,  18,  4,  1,  0],
+  ["Pyaz / Onion",                    "1 medium (100g)",    0,  40,  9,  1,  0],
+  ["Lehsun / Garlic",                 "4 cloves (12g)",     0,  18,  4,  1,  0],
+  ["Adrak / Ginger",                  "1 inch (10g)",       0,   8,  2,  0,  0],
+  ["Lauki / Bottle gourd",            "1 katori (100g)",    1,  14,  3,  1,  0],
+  ["Turai / Ridge gourd",             "1 katori (100g)",    2,  17,  4,  1,  0],
+  ["Torai / Sponge gourd",            "1 katori (100g)",    2,  18,  4,  1,  0],
+  ["Baingan / Brinjal",               "1 katori (100g)",    3,  24,  6,  1,  0],
+  ["Gajar / Carrot",                  "1 medium (80g)",     9,  33,  8,  1,  0],
+  ["Mooli / Radish",                  "5 slices (50g)",     0,   9,  2,  0,  0],
+  ["Shalgam / Turnip",                "1 katori (100g)",    0,  28,  6,  1,  0],
+  ["Chukandar / Beetroot",            "½ cup (75g)",        0,  32,  7,  1,  0],
+  ["Kheera / Cucumber",               "½ cup (75g)",        7,  11,  3,  0,  0],
+  ["Arbi / Colocasia / Taro",         "1 katori (100g)",    3,  94, 23,  2,  0],
+  ["Suran / Yam",                     "1 katori (100g)",    2,  94, 23,  1,  0],
+  ["Kathal / Jackfruit (raw, cooked)","1 katori (100g)",    5,  95, 24,  2,  1],
+  ["Tofu (firm)",                     "½ cup (100g)",       3,  76,  2,  8,  4],
+  ["Shimla mirch / Red capsicum",     "½ cup (60g)",        3,  19,  4,  1,  0],
+
+  // ── 🟢 DAIRY (low VK) ────────────────────────────────────────────────────
+  ["Doodh / Milk (full fat)",         "1 glass (200ml)",    0, 124, 10,  6,  7],
+  ["Doodh / Milk (toned)",            "1 glass (200ml)",    0,  80,  9,  6,  3],
+  ["Dahi / Yogurt (full fat)",        "1 katori (100g)",    0,  60,  4,  4,  3],
+  ["Dahi / Yogurt (low fat)",         "1 katori (100g)",    0,  40,  5,  5,  1],
+  ["Chaas / Buttermilk",              "1 glass (200ml)",    0,  40,  5,  3,  1],
+  ["Paneer (homemade)",               "100g",               1, 265,  4, 18, 20],
+  ["Paneer sabzi / Palak paneer",     "1 katori (150g)",  180, 310,  9, 18, 22],
+  ["Shrikhand",                       "1 small bowl (80g)", 0, 160, 22,  5,  6],
+  ["Lassi (sweet)",                   "1 glass (200ml)",    0, 165, 28,  5,  4],
+  ["Khoa / Mawa",                     "50g",                0, 192,  9,  9, 14],
+  ["Malai / Cream",                   "1 tbsp (20g)",       1,  69,  1,  0,  7],
+  ["Ghee",                            "1 tsp (5g)",         0,  45,  0,  0,  5],
+  ["Butter",                          "1 tsp (5g)",         0,  36,  0,  0,  4],
+
+  // ── 🟢 FRUITS ─────────────────────────────────────────────────────────────
+  ["Kela / Banana",                   "1 medium (100g)",    0,  89, 23,  1,  0],
+  ["Seb / Apple",                     "1 medium (150g)",    3, 105, 28,  0,  0],
+  ["Aam / Mango (ripe)",              "½ katori (100g)",    4,  60, 15,  1,  0],
+  ["Papita / Papaya",                 "1 katori (150g)",    3,  60, 15,  1,  0],
+  ["Guava / Amrood",                  "1 medium (100g)",    2,  68, 14,  3,  1],
+  ["Anaar / Pomegranate",             "½ katori (100g)",    7,  83, 19,  2,  1],
+  ["Angoor / Grapes",                 "½ katori (80g)",     7,  55, 14,  1,  0],
+  ["Chikoo / Sapota",                 "1 medium (100g)",    2, 118, 28,  1,  0],
+  ["Narangi / Orange",                "1 medium (130g)",    0,  62, 15,  1,  0],
+  ["Mosambi / Sweet lime",            "1 medium (130g)",    0,  53, 13,  1,  0],
+  ["Ber / Indian jujube",             "5-6 pieces (50g)",   0,  38,  9,  1,  0],
+  ["Jamun / Java plum",               "½ katori (80g)",     0,  47, 11,  1,  0],
+  ["Tarbuz / Watermelon",             "1 katori (150g)",    0,  46, 11,  1,  0],
+  ["Kharbuja / Muskmelon",            "1 katori (150g)",    2,  54, 13,  1,  0],
+  ["Coconut (fresh, grated)",         "2 tbsp (20g)",       0,  71,  3,  1,  7],
+  ["Nimbu / Lemon juice",             "1 tbsp (15ml)",      0,   4,  1,  0,  0],
+
+  // ── 🟢 SNACKS & STREET FOOD ───────────────────────────────────────────────
+  ["Khakhra (plain)",                 "2 pieces (30g)",     1, 120, 20,  4,  3],
+  ["Makhana / Fox nuts (roasted)",    "1 katori (30g)",     0, 106, 20,  4,  1],
+  ["Chivda / Poha chivda",            "1 katori (30g)",     2, 120, 20,  3,  4],
+  ["Bhel puri",                       "1 plate (100g)",     5, 180, 30,  4,  5],
+  ["Pav bhaji (1 plate)",             "1 plate (250g)",    28, 420, 58,  9, 18],
+  ["Samosa",                          "1 piece (80g)",      4, 252, 28,  4, 14],
+  ["Dhokla",                          "2 pieces (80g)",     1,  99, 16,  5,  2],
+  ["Handvo (1 slice)",                "1 piece (80g)",      5, 188, 28,  7,  6],
+  ["Chakli / Murukku",                "3 pieces (30g)",     2, 145, 20,  2,  7],
+  ["Namkeen / Farsan (mix)",          "1 handful (30g)",    1, 155, 18,  4,  8],
+  ["Mathari / Mathri",                "3 pieces (30g)",     1, 148, 18,  3,  7],
+  ["Bajra khichdi",                   "1 katori (150g)",    0, 190, 36,  5,  3],
+  ["Sabudana khichdi",                "1 katori (150g)",    1, 280, 50,  4,  8],
+
+  // ── 🟢 SWEETS & DESSERTS ──────────────────────────────────────────────────
+  ["Doodh / Sweetened milk",          "1 glass (200ml)",    0, 180, 22,  7,  7],
+  ["Kheer / Rice pudding",            "1 katori (150g)",    1, 250, 40,  7,  7],
+  ["Halwa (sooji)",                   "1 katori (100g)",    1, 316, 48,  4, 12],
+  ["Ladoo (besan)",                   "1 piece (40g)",      1, 191, 23,  4,  9],
+  ["Ladoo (motichoor)",               "1 piece (40g)",      1, 185, 24,  3,  8],
+  ["Jalebi",                          "2 pieces (40g)",     0, 149, 27,  1,  4],
+  ["Barfi (milk)",                    "1 piece (30g)",      0, 135, 14,  4,  7],
+  ["Gulab jamun",                     "2 pieces (60g)",     0, 189, 25,  4,  8],
+  ["Rasgulla",                        "2 pieces (100g)",    0, 186, 30,  5,  4],
+
+  // ── 🟢 BEVERAGES & CONDIMENTS ─────────────────────────────────────────────
+  ["Chai / Indian tea (with milk)",   "1 cup (150ml)",      1,  50,  5,  2,  2],
+  ["Coffee (with milk)",              "1 cup (150ml)",      0,  45,  5,  2,  2],
+  ["Nimbu paani (lemonade)",          "1 glass (250ml)",    0,  45, 11,  0,  0],
+  ["Aam panna",                       "1 glass (200ml)",    1,  90, 22,  1,  0],
+  ["Coconut water",                   "1 glass (200ml)",    0,  38,  9,  1,  0],
+  ["Badam milk / Almond milk",        "1 glass (200ml)",    0, 120, 10,  4,  7],
+  ["Imli / Tamarind chutney",         "1 tbsp (20g)",       1,  37,  9,  0,  0],
+  ["Dhaniya chutney / Green chutney", "2 tbsp (30g)",      40,  22,  3,  1,  1],
+  ["Aam ka achar / Mango pickle",     "1 tsp (10g)",        2,  29,  3,  0,  2],
+  ["Ketchup / Tomato sauce",          "1 tbsp (17g)",       1,  17,  4,  0,  0],
+
+  // ── 🟢 NUTS, SEEDS & OILS ─────────────────────────────────────────────────
+  ["Badam / Almonds",                 "10 pieces (15g)",    0, 104,  4,  4,  9],
+  ["Akhrot / Walnuts",                "4 halves (15g)",     1, 104,  2,  2, 10],
+  ["Kaju / Cashew",                   "10 pieces (15g)",    0, 107,  6,  3,  9],
+  ["Pista / Pistachio",               "20 pieces (15g)",    0,  96,  5,  4,  8],
+  ["Mungfali / Peanuts (roasted)",    "1 handful (30g)",    0, 176,  5,  8, 14],
+  ["Til / Sesame seeds",              "1 tbsp (9g)",       22,  52,  2,  2,  5],
+  ["Alsi / Flaxseeds",                "1 tsp (5g)",         0,  27,  1,  1,  2],
+  ["Sunflower seeds",                 "1 tbsp (10g)",       0,  58,  2,  2,  5],
+  ["Groundnut oil",                   "1 tbsp (14g)",       0, 124,  0,  0, 14],
+  ["Coconut oil",                     "1 tsp (5g)",         0,  45,  0,  0,  5],
+  ["Olive oil",                       "1 tsp (5g)",         3,  40,  0,  0,  5],
+  ["Mustard seeds (rai)",             "½ tsp (2g)",         1,   9,  0,  0,  1],
+  ["Jeera / Cumin seeds",             "½ tsp (2g)",         2,   8,  1,  0,  0],
+  ["Haldi / Turmeric powder",         "¼ tsp (1g)",         0,   3,  1,  0,  0],
+  ["Mirchi / Red chilli powder",      "¼ tsp (1g)",         3,   3,  1,  0,  0],
+  ["Dhaniya / Coriander powder",      "¼ tsp (1g)",         2,   3,  1,  0,  0],
+  ["Garam masala",                    "¼ tsp (1g)",         2,   5,  1,  0,  0],
+  ["Hing / Asafoetida",               "pinch",              0,   2,  0,  0,  0],
+  ["Sugar",                           "1 tsp (4g)",         0,  16,  4,  0,  0],
+  ["Jaggery / Gud",                   "1 small piece (10g)",0,  38, 10,  0,  0],
+  // ── 🟡/🟢 JAIN DISHES (no onion, no garlic, no root veg after sunset) ──────
+  // Note: Jain diet avoids onion, garlic, potato, carrot, radish, beetroot (root veg)
+  // Also avoids eggplant. Dishes below follow strict Jain guidelines.
+
+  // Jain Dals & Curries
+  ["Jain dal tadka (no onion-garlic)",  "1 katori (150g)",    3, 145, 22,  9,  4],
+  ["Jain chana masala (no onion)",      "1 katori (150g)",   12, 210, 28, 11,  6],
+  ["Jain rajma (no onion-garlic)",      "1 katori (150g)",   10, 190, 30, 11,  4],
+  ["Jain moong dal khichdi",            "1 katori (200g)",    4, 220, 40,  9,  3],
+  ["Jain toor dal with tomato",         "1 katori (150g)",    8, 140, 21,  8,  3],
+  ["Jain kala chana (dry)",             "1 katori (150g)",    9, 210, 33, 12,  5],
+  ["Jain sprouted moth sabzi",          "1 katori (150g)",    5, 130, 20,  8,  3],
+
+  // Jain Sabzis (no root veg)
+  ["Jain dudhi / lauki sabzi",          "1 katori (150g)",    2,  90, 12,  2,  4],
+  ["Jain tinda sabzi",                  "1 katori (150g)",    5,  95, 12,  2,  4],
+  ["Jain turai sabzi",                  "1 katori (150g)",    3,  80, 10,  2,  4],
+  ["Jain karela sabzi (no onion)",      "1 katori (150g)",   42, 110, 10,  3,  7],
+  ["Jain bhindi sabzi (no onion)",      "1 katori (150g)",   35, 120, 13,  3,  7],
+  ["Jain cauliflower / gobi sabzi",     "1 katori (150g)",   16, 130, 13,  4,  7],
+  ["Jain cabbage sabzi",                "1 katori (150g)",   56, 110, 10,  3,  6],
+  ["Jain green peas sabzi / matar",     "1 katori (150g)",   24, 170, 22,  7,  6],
+  ["Jain shimla mirch sabzi",           "1 katori (150g)",   11, 110, 12,  3,  6],
+  ["Jain val / sem sabzi",              "1 katori (150g)",   47, 140, 18,  6,  5],
+  ["Jain gawar phali sabzi",            "1 katori (150g)",   63, 110, 13,  4,  5],
+  ["Jain dudhi kofta curry",            "1 katori (200g)",    5, 290, 22,  8, 18],
+  ["Jain matar paneer (no onion)",      "1 katori (200g)",   26, 380, 18, 18, 24],
+  ["Jain paneer bhurji (no onion)",     "1 katori (150g)",    3, 340,  6, 20, 26],
+  ["Jain palak paneer (no onion)",      "1 katori (200g)",  450, 340, 10, 18, 26],
+  ["Jain methi paneer",                 "1 katori (200g)",  290, 360, 12, 18, 26],
+  ["Jain kadhi (no onion)",             "1 katori (200g)",    2, 180, 22,  6,  8],
+  ["Jain sev tamatar sabzi",            "1 katori (150g)",   10, 240, 28,  5, 12],
+
+  // Jain Rice & Breads
+  ["Jain pulao (no onion-garlic)",      "1 katori (150g)",    3, 240, 40,  5,  7],
+  ["Jain biryani (veg, no onion)",      "1 katori (200g)",    8, 310, 50,  8,  9],
+  ["Jain masala khichdi",               "1 katori (200g)",    5, 250, 42,  8,  6],
+  ["Jain jeera rice",                   "1 katori (150g)",    1, 220, 42,  4,  4],
+  ["Jain bajra khichdi",                "1 katori (200g)",    1, 260, 48,  7,  5],
+  ["Jain thepla (methi, no onion)",     "2 pieces",         310, 260, 36,  8,  9],
+  ["Jain paratha (plain, no onion)",    "1 medium",           2, 200, 30,  4,  8],
+  ["Jain missi roti (no onion)",        "1 medium",           2, 130, 20,  6,  4],
+  ["Jain puri",                         "2 pieces",           1, 150, 18,  2,  8],
+
+  // Jain Snacks & Farsan
+  ["Jain dhokla (no onion-garlic)",     "2 pieces (80g)",     1,  99, 16,  5,  2],
+  ["Jain handvo (no onion)",            "1 piece (80g)",      5, 188, 28,  7,  6],
+  ["Jain muthia (dudhi)",               "3 pieces (90g)",     5, 185, 28,  7,  5],
+  ["Jain khandvi",                      "6 rolls (80g)",      1, 150, 16,  7,  6],
+  ["Jain chakli / murukku",             "3 pieces (30g)",     2, 145, 20,  2,  7],
+  ["Jain khakhra (plain)",              "2 pieces (30g)",     1, 120, 20,  4,  3],
+  ["Jain patra (no onion-garlic)",      "2 pieces (80g)",    95, 170, 28,  5,  5],
+  ["Jain samosa (no onion, no potato)", "1 piece (70g)",      6, 200, 22,  5, 10],
+  ["Jain bhel (no onion)",              "1 plate (100g)",     3, 165, 28,  4,  5],
+  ["Jain sev puri (no onion)",          "4 pieces (80g)",     4, 200, 28,  5,  8],
+  ["Jain upma (no onion)",              "1 katori (100g)",    1, 145, 22,  3,  4],
+  ["Jain sabudana khichdi",             "1 katori (150g)",    1, 280, 50,  4,  8],
+  ["Jain poha (no onion)",              "1 katori (100g)",    2, 128, 24,  3,  2],
+
+  // Jain Sweets
+  ["Jain lapsi / wheat halwa",          "1 katori (100g)",    1, 320, 52,  4, 11],
+  ["Jain sooji halwa",                  "1 katori (100g)",    1, 316, 48,  4, 12],
+  ["Jain besan ladoo",                  "1 piece (40g)",      1, 191, 23,  4,  9],
+  ["Jain mohanthal",                    "1 piece (40g)",      1, 210, 28,  4, 10],
+  ["Jain churma ladoo",                 "1 piece (40g)",      1, 220, 30,  3, 10],
+  ["Jain atta halwa (no ghee overload)","1 katori (100g)",    1, 290, 44,  5, 10],
+  ["Jain kheer (no saffron needed)",    "1 katori (150g)",    1, 250, 40,  7,  7],
+  ["Jain shrikhand",                    "1 bowl (80g)",       0, 160, 22,  5,  6],
+  ["Jain basundi",                      "1 small bowl (100g)",1, 190, 26,  8,  7],
 ];
 
 // Historical seed data for first-time import
@@ -541,6 +1130,111 @@ const ARPIT_SEED_INR = [
   {date:'2026-06-07',val:3.4,dose:5,notes:'Warf-5 — INR rising, monitor closely',ts:'s50'}
 ];
 
+// Sample food data for last 7 days — realistic Jain vegetarian meals
+// Intentionally shows VK variability to demonstrate the Insights tab
+// Tagged sample:true so they can be deleted in bulk
+function buildSampleFoodLog() {
+  const days = [];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  // [date, name, meal, qty, unit, vk, kcal, carb, protein, fat, ts]
+  const meals = [
+    // Day 0 (6 days ago) — normal day, moderate VK ~85 mcg
+    [days[0],"Dahi / Yogurt (full fat)","Breakfast",1,"katori",0,60,4,4,3,"sf1"],
+    [days[0],"Daliya / Broken wheat (cooked)","Breakfast",1,"katori",1,130,27,4,1,"sf2"],
+    [days[0],"Chawal / White rice (cooked)","Lunch",1.5,"katori",0,195,42,5,0,"sf3"],
+    [days[0],"Toor dal (cooked)","Lunch",1,"katori",2,116,20,7,0,"sf4"],
+    [days[0],"Jain bhindi sabzi (no onion)","Lunch",1,"katori",35,120,13,3,7,"sf5"],
+    [days[0],"Roti / Chapati (wheat)","Lunch",2,"medium roti",2,200,36,6,4,"sf6"],
+    [days[0],"Chai / Indian tea (with milk)","Snack",1,"cup",1,50,5,2,2,"sf7"],
+    [days[0],"Khakhra (plain)","Snack",2,"pieces",1,120,20,4,3,"sf8"],
+    [days[0],"Jain toor dal with tomato","Dinner",1,"katori",8,140,21,8,3,"sf9"],
+    [days[0],"Roti / Chapati (wheat)","Dinner",2,"medium roti",2,200,36,6,4,"sf10"],
+    [days[0],"Kheera / Cucumber","Dinner",1,"katori",7,11,3,0,0,"sf11"],
+
+    // Day 1 (5 days ago) — LOW VK day (skipped greens) ~18 mcg — INR will rise
+    [days[1],"Doodh / Milk (full fat)","Breakfast",1,"glass",0,124,10,6,7,"sf12"],
+    [days[1],"Poha (cooked)","Breakfast",1,"katori",2,130,25,3,2,"sf13"],
+    [days[1],"Jain moong dal khichdi","Lunch",1.5,"katori",6,330,60,14,5,"sf14"],
+    [days[1],"Dahi / Yogurt (full fat)","Lunch",1,"katori",0,60,4,4,3,"sf15"],
+    [days[1],"Tamatar / Tomato","Lunch",1,"medium",8,18,4,1,0,"sf16"],
+    [days[1],"Chai / Indian tea (with milk)","Snack",2,"cup",2,100,10,4,4,"sf17"],
+    [days[1],"Makhana / Fox nuts (roasted)","Snack",1,"katori",0,106,20,4,1,"sf18"],
+    [days[1],"Roti / Chapati (wheat)","Dinner",3,"medium roti",3,300,54,9,6,"sf19"],
+    [days[1],"Jain chana masala (no onion)","Dinner",1,"katori",12,210,28,11,6,"sf20"],
+
+    // Day 2 (4 days ago) — HIGH VK day (palak + methi) ~780 mcg — INR will fall
+    [days[2],"Jain thepla (methi, no onion)","Breakfast",2,"pieces",310,260,36,8,9,"sf21"],
+    [days[2],"Dahi / Yogurt (full fat)","Breakfast",1,"katori",0,60,4,4,3,"sf22"],
+    [days[2],"Chai / Indian tea (with milk)","Breakfast",1,"cup",1,50,5,2,2,"sf23"],
+    [days[2],"Jain palak paneer (no onion)","Lunch",1,"katori",450,340,10,18,26,"sf24"],
+    [days[2],"Chawal / White rice (cooked)","Lunch",1.5,"katori",0,195,42,5,0,"sf25"],
+    [days[2],"Roti / Chapati (wheat)","Lunch",1,"medium roti",1,100,18,3,2,"sf26"],
+    [days[2],"Nimbu paani (lemonade)","Snack",1,"glass",0,45,11,0,0,"sf27"],
+    [days[2],"Methi sabzi (cooked)","Dinner",1,"katori",280,49,6,4,2,"sf28"],
+    [days[2],"Roti / Chapati (wheat)","Dinner",3,"medium roti",3,300,54,9,6,"sf29"],
+    [days[2],"Moong dal (cooked)","Dinner",1,"katori",3,105,19,7,0,"sf30"],
+
+    // Day 3 (3 days ago) — normal day ~90 mcg
+    [days[3],"Upma","Breakfast",1,"katori",1,145,22,3,4,"sf31"],
+    [days[3],"Chai / Indian tea (with milk)","Breakfast",1,"cup",1,50,5,2,2,"sf32"],
+    [days[3],"Jain matar paneer (no onion)","Lunch",1,"katori",26,380,18,18,24,"sf33"],
+    [days[3],"Chawal / White rice (cooked)","Lunch",1,"katori",0,130,28,3,0,"sf34"],
+    [days[3],"Roti / Chapati (wheat)","Lunch",2,"medium roti",2,200,36,6,4,"sf35"],
+    [days[3],"Gajar / Carrot","Lunch",1,"medium",9,33,8,1,0,"sf36"],
+    [days[3],"Jain dhokla (no onion-garlic)","Snack",2,"pieces",1,99,16,5,2,"sf37"],
+    [days[3],"Chai / Indian tea (with milk)","Snack",1,"cup",1,50,5,2,2,"sf38"],
+    [days[3],"Toor dal (cooked)","Dinner",1,"katori",2,116,20,7,0,"sf39"],
+    [days[3],"Jain tinda sabzi","Dinner",1,"katori",5,95,12,2,4,"sf40"],
+    [days[3],"Roti / Chapati (wheat)","Dinner",3,"medium roti",3,300,54,9,6,"sf41"],
+    [days[3],"Dahi / Yogurt (full fat)","Dinner",0.5,"katori",0,30,2,2,2,"sf42"],
+
+    // Day 4 (2 days ago) — moderate day ~65 mcg
+    [days[4],"Idli","Breakfast",4,"pieces",0,152,32,4,0,"sf43"],
+    [days[4],"Dahi / Yogurt (full fat)","Breakfast",1,"katori",0,60,4,4,3,"sf44"],
+    [days[4],"Chai / Indian tea (with milk)","Breakfast",1,"cup",1,50,5,2,2,"sf45"],
+    [days[4],"Rajma / Kidney beans (cooked)","Lunch",1,"katori",8,127,23,9,1,"sf46"],
+    [days[4],"Chawal / White rice (cooked)","Lunch",2,"katori",0,260,56,6,0,"sf47"],
+    [days[4],"Jain dudhi / lauki sabzi","Lunch",1,"katori",2,90,12,2,4,"sf48"],
+    [days[4],"Jain khandvi","Snack",6,"rolls",1,150,16,7,6,"sf49"],
+    [days[4],"Aam / Mango (ripe)","Snack",1,"katori",4,60,15,1,0,"sf50"],
+    [days[4],"Jain kadhi (no onion)","Dinner",1,"katori",2,180,22,6,8,"sf51"],
+    [days[4],"Jain jeera rice","Dinner",1,"katori",1,220,42,4,4,"sf52"],
+    [days[4],"Jain bhindi sabzi (no onion)","Dinner",1,"katori",35,120,13,3,7,"sf53"],
+
+    // Day 5 (yesterday) — slightly high VK (curry leaves + sabzi) ~145 mcg
+    [days[5],"Jain poha (no onion)","Breakfast",1,"katori",2,128,24,3,2,"sf54"],
+    [days[5],"Chai / Indian tea (with milk)","Breakfast",2,"cup",2,100,10,4,4,"sf55"],
+    [days[5],"Jain sev tamatar sabzi","Lunch",1,"katori",10,240,28,5,12,"sf56"],
+    [days[5],"Roti / Chapati (wheat)","Lunch",3,"medium roti",3,300,54,9,6,"sf57"],
+    [days[5],"Masoor dal (red lentil, cooked)","Lunch",1,"katori",2,116,20,9,0,"sf58"],
+    [days[5],"Curry leaves (kadi patta)","Lunch",1,"serving",31,5,1,0,0,"sf59"],
+    [days[5],"Jain besan ladoo","Snack",1,"piece",1,191,23,4,9,"sf60"],
+    [days[5],"Doodh / Milk (full fat)","Snack",1,"glass",0,124,10,6,7,"sf61"],
+    [days[5],"Jain paneer bhurji (no onion)","Dinner",1,"katori",3,340,6,20,26,"sf62"],
+    [days[5],"Jain missi roti (no onion)","Dinner",3,"medium",6,390,60,18,12,"sf63"],
+    [days[5],"Kheera / Cucumber","Dinner",1,"katori",7,11,3,0,0,"sf64"],
+    [days[5],"Dahi / Yogurt (full fat)","Dinner",1,"katori",0,60,4,4,3,"sf65"],
+
+    // Day 6 (today) — normal ~75 mcg
+    [days[6],"Jain sabudana khichdi","Breakfast",1,"katori",1,280,50,4,8,"sf66"],
+    [days[6],"Chai / Indian tea (with milk)","Breakfast",1,"cup",1,50,5,2,2,"sf67"],
+    [days[6],"Jain chana masala (no onion)","Lunch",1,"katori",12,210,28,11,6,"sf68"],
+    [days[6],"Jain jeera rice","Lunch",1,"katori",1,220,42,4,4,"sf69"],
+    [days[6],"Jain gobi sabzi","Lunch",1,"katori",16,130,13,4,7,"sf70"],
+    [days[6],"Roti / Chapati (wheat)","Lunch",1,"medium roti",1,100,18,3,2,"sf71"],
+    [days[6],"Guava / Amrood","Snack",1,"medium",2,68,14,3,1,"sf72"],
+    [days[6],"Chai / Indian tea (with milk)","Snack",1,"cup",1,50,5,2,2,"sf73"],
+  ];
+  return meals.map(m => ({
+    date:m[0], name:m[1], meal:m[2], qty:m[3], unit:m[4],
+    vk:m[5], kcal:m[6], carb:m[7], protein:m[8], fat:m[9],
+    ts:m[10], sample:true
+  }));
+}
+
 // ═══════════════════════════════════════════════
 //  STATE & STORAGE
 // ═══════════════════════════════════════════════
@@ -573,12 +1267,14 @@ async function api(params) {
 function setSyncing(active, error=false) {
   const dot = document.getElementById('syncDot');
   const txt = document.getElementById('syncStatus');
+  const ts  = document.getElementById('lastSyncTime');
+  if (!dot || !txt) return;
   if (error) { dot.className='sync-dot error'; txt.textContent='Sync error — check connection'; return; }
   if (active) { dot.className='sync-dot syncing'; txt.textContent='Syncing…'; }
   else {
     dot.className='sync-dot';
     txt.textContent='Synced to Google Sheets';
-    document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString();
+    if (ts) ts.textContent = new Date().toLocaleTimeString();
   }
 }
 
@@ -624,7 +1320,7 @@ async function loadAll() {
       protein:parseFloat(r[8]),fat:parseFloat(r[9]),ts:String(r[10])
     }));
 
-    // If sheet is empty (first time), push all seed data up to Sheets
+    // If sheet is empty (first time), push seed data up to Sheets
     if (sheetINR.length === 0) {
       setSyncing(true);
       let count = 0;
@@ -648,9 +1344,15 @@ async function loadAll() {
     }
   } catch(e) {
     console.error('Load failed — showing cached data:', e);
-    // Fall back to local seed data so UI still works
     const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
-    if (inrLog.length === 0) inrLog = local.inrLog;
+    if (inrLog.length === 0) inrLog = local.inrLog.map(r=>({
+      date:String(r.date), val:parseFloat(r.val), dose:r.dose||null, notes:r.notes||'', ts:String(r.ts||r.date)
+    })).sort((a,b)=>a.date.localeCompare(b.date));
+    if (foodLog.length === 0) foodLog = local.foodLog.map(r=>({
+      date:String(r.date),name:r.name,meal:r.meal,qty:parseFloat(r.qty),unit:r.unit,
+      vk:parseFloat(r.vk)||0,kcal:parseFloat(r.kcal)||0,carb:parseFloat(r.carb)||0,
+      protein:parseFloat(r.protein)||0,fat:parseFloat(r.fat)||0,ts:String(r.ts),sample:r.sample||false
+    }));
   }
   renderAll();
 }
@@ -659,7 +1361,8 @@ async function loadAll() {
 //  SETUP & CONNECTION
 // ═══════════════════════════════════════════════
 async function connectScript() {
-  const url = document.getElementById('scriptUrl').value.trim();
+  const urlEl = document.getElementById('scriptUrl');
+  const url = urlEl ? urlEl.value.trim() : '';
   if (!url || !url.includes('script.google.com')) {
     setConnectStatus('❌ Please paste a valid Apps Script URL', 'var(--danger)'); return;
   }
@@ -683,13 +1386,15 @@ async function connectScript() {
 
 function setConnectStatus(msg, color) {
   const el = document.getElementById('connectStatus');
+  if (!el) return;
   el.textContent = msg;
   el.style.color = color;
 }
 
 function loadSavedUrl() {
   const saved = localStorage.getItem('inrScriptUrl');
-  if (saved) { document.getElementById('scriptUrl').value = saved; connectScript(); }
+  const el = document.getElementById('scriptUrl');
+  if (saved) { if (el) el.value = saved; connectScript(); }
   else setConnectStatus('No saved URL found. Please paste your URL.', 'var(--muted)');
 }
 
@@ -749,20 +1454,25 @@ async function connectFromSettings() {
   }
 }
 
+function setEl(id, prop, val) {
+  const el = document.getElementById(id);
+  if (el) el[prop] = val;
+}
+
 function launchApp() {
-  document.getElementById('setupScreen').style.display = 'none';
+  setEl('setupScreen','style.display','none');
   document.getElementById('syncBar').style.display = 'flex';
   document.getElementById('appHeader').style.display = 'flex';
   document.getElementById('appTabs').style.display = 'flex';
   document.getElementById('appMain').style.display = 'block';
   const now = new Date();
-  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('inrDate').value = toDateStr(now);
-  document.getElementById('foodDate').value = toDateStr(now);
-  document.getElementById('nextDoseDate').value = toDateStr(new Date(now.getTime()+86400000));
+  setEl('headerDate','textContent', now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}));
+  setEl('inrDate','value', toDateStr(now));
+  setEl('foodDate','value', toDateStr(now));
+  setEl('foodViewDate','value', toDateStr(now));
+  setEl('nextDoseDate','value', toDateStr(new Date(now.getTime()+86400000)));
   loadSettings();
   renderVKGuide();
-  // loadAll() called after launchApp from window.load depending on mode
   loadAll();
 }
 
@@ -770,26 +1480,25 @@ function launchApp() {
 //  SETTINGS
 // ═══════════════════════════════════════════════
 function loadSettings() {
-  document.getElementById('targetLow').value = settings.targetLow;
-  document.getElementById('targetHigh').value = settings.targetHigh;
-  document.getElementById('vkGoalInput').value = settings.vkGoal;
-  document.getElementById('patientName').value = settings.patientName||'';
-  document.getElementById('currentWarf').value = settings.warfDose||'';
-  document.getElementById('settingsScriptUrl').value = SCRIPT_URL;
-  document.getElementById('targetDisplay').textContent = `${settings.targetLow} – ${settings.targetHigh}`;
-  document.getElementById('vkGoalDisplay').textContent = settings.vkGoal;
-  document.getElementById('headerSub').textContent =
-    `${settings.patientName||'Arpit'} · MICS AVR · Warf-${settings.warfDose||'?'}`;
+  setEl('targetLow','value', settings.targetLow);
+  setEl('targetHigh','value', settings.targetHigh);
+  setEl('vkGoalInput','value', settings.vkGoal);
+  setEl('patientName','value', settings.patientName||'');
+  setEl('currentWarf','value', settings.warfDose||'');
+  setEl('settingsScriptUrl','value', SCRIPT_URL);
+  setEl('targetDisplay','textContent', `${settings.targetLow} – ${settings.targetHigh}`);
+  setEl('vkGoalDisplay','textContent', settings.vkGoal);
+  setEl('headerSub','textContent', `${settings.patientName||'Arpit'} · MICS AVR · Warf-${settings.warfDose||'?'}`);
   const info = document.getElementById('sheetConnectedInfo');
-  info.innerHTML = `✅ <strong>Always connected to Google Sheets</strong> — every entry from any family member saves permanently. <a href="https://docs.google.com/spreadsheets" target="_blank" style="color:var(--accent)">Open Sheets →</a>`;
+  if (info) info.innerHTML = `✅ <strong>Always connected to Google Sheets</strong> — every entry saves permanently for all family members. <a href="https://docs.google.com/spreadsheets" target="_blank" style="color:var(--accent)">Open Sheets →</a>`;
 }
 
 async function saveSettings() {
-  settings.targetLow = parseFloat(document.getElementById('targetLow').value)||2.5;
-  settings.targetHigh = parseFloat(document.getElementById('targetHigh').value)||3.5;
-  settings.vkGoal = parseFloat(document.getElementById('vkGoalInput').value)||90;
-  settings.patientName = document.getElementById('patientName').value;
-  settings.warfDose = document.getElementById('currentWarf').value;
+  settings.targetLow = parseFloat(document.getElementById('targetLow')?.value)||2.5;
+  settings.targetHigh = parseFloat(document.getElementById('targetHigh')?.value)||3.5;
+  settings.vkGoal = parseFloat(document.getElementById('vkGoalInput')?.value)||90;
+  settings.patientName = document.getElementById('patientName')?.value||'';
+  settings.warfDose = document.getElementById('currentWarf')?.value||'';
   localStorage.setItem('inrSettings', JSON.stringify(settings));
   try { await api({action:'saveSettings', settings:JSON.stringify(settings)}); } catch(e){}
   loadSettings();
@@ -812,10 +1521,10 @@ async function logINR() {
     await api({action:'addINR',date,val,dose,notes,ts:Date.now().toString()});
     inrLog.push({date,val,dose,notes,ts:Date.now().toString()});
     inrLog.sort((a,b)=>a.date.localeCompare(b.date));
-    document.getElementById('inrSaveMsg').textContent = `✓ INR ${val} saved`;
-    document.getElementById('inrValue').value='';
-    document.getElementById('inrNotes').value='';
-    setTimeout(()=>document.getElementById('inrSaveMsg').textContent='',3000);
+    setEl('inrSaveMsg','textContent',`✓ INR ${val} saved`);
+    setEl('inrValue','value','');
+    setEl('inrNotes','value','');
+    setTimeout(()=>setEl('inrSaveMsg','textContent',''),3000);
     renderAll();
   } catch(e) { alert('Save failed: '+e.message); }
   btn.disabled=false; btn.textContent='Save to Google Sheets';
@@ -920,9 +1629,10 @@ function clearFoodForm() {
 //  RENDER
 // ═══════════════════════════════════════════════
 function renderAll() {
-  renderToday();
-  renderFoodLog();
-  renderHistory();
+  renderToday();        // always render today (it's the default active tab)
+  renderFoodLog();      // skips if panel not active
+  renderHistory();      // skips charts if panel not active
+  renderInsights();     // skips if panel not active
 }
 
 function today() { return toDateStr(new Date()); }
@@ -971,21 +1681,35 @@ function renderToday() {
     document.getElementById('lastLoggedDisplay').textContent='—';
     document.getElementById('risingAlert').style.display='none';
   }
-  document.getElementById('targetDisplay').textContent=`${s.targetLow} – ${s.targetHigh}`;
+  setEl('targetDisplay','textContent',`${s.targetLow} – ${s.targetHigh}`);
 
   // VK + macros
   const todayFoods = foodLog.filter(f=>f.date===today());
   const totalVK = todayFoods.reduce((a,f)=>a+f.vk,0);
-  document.getElementById('todayVKTotal').innerHTML=`${totalVK.toFixed(0)} <span style="font-size:14px;color:var(--muted)">mcg</span>`;
-  const pct = Math.min((totalVK/s.vkGoal)*100,200);
+  const totalKcal = todayFoods.reduce((a,f)=>a+f.kcal,0);
+  const totalCarb = todayFoods.reduce((a,f)=>a+f.carb,0);
+  const totalProt = todayFoods.reduce((a,f)=>a+f.protein,0);
+  const totalFat  = todayFoods.reduce((a,f)=>a+f.fat,0);
+  setEl('todayVKTotal','textContent', totalVK.toFixed(0));
+  const vkPct = Math.min((totalVK/s.vkGoal)*100,200);
   const fill = document.getElementById('vkMeterFill');
-  fill.style.width=`${Math.min(pct,100)}%`;
-  fill.style.background=pct>150?'var(--danger)':pct>100?'var(--warn)':'var(--good)';
-  document.getElementById('vkGoalDisplay').textContent=s.vkGoal;
-  document.getElementById('macroKcal').textContent=Math.round(todayFoods.reduce((a,f)=>a+f.kcal,0));
-  document.getElementById('macroCarb').textContent=todayFoods.reduce((a,f)=>a+f.carb,0).toFixed(0)+'g';
-  document.getElementById('macroProtein').textContent=todayFoods.reduce((a,f)=>a+f.protein,0).toFixed(0)+'g';
-  document.getElementById('macroFat').textContent=todayFoods.reduce((a,f)=>a+f.fat,0).toFixed(0)+'g';
+  if (fill) { fill.style.width=`${Math.min(vkPct,100)}%`; fill.style.background=vkPct>150?'var(--danger)':vkPct>100?'var(--warn)':'var(--good)'; }
+  setEl('vkGoalDisplay','textContent', s.vkGoal);
+  setEl('macroKcal','textContent', Math.round(totalKcal));
+  setEl('macroCarb','textContent', totalCarb.toFixed(0)+'g');
+  setEl('macroProtein','textContent', totalProt.toFixed(0)+'g');
+  setEl('macroFat','textContent', totalFat.toFixed(0)+'g');
+
+  // Macro bars on today tab
+  const KCAL_GOAL=2000,CARB_GOAL=250,PROT_GOAL=80,FAT_GOAL=65;
+  const setBar2=(id,val,goal)=>{ const el2=document.getElementById(id); if(el2) el2.style.width=Math.min((val/goal)*100,100)+'%'; };
+  setBar2('todayKcalBar',totalKcal,KCAL_GOAL);
+  setBar2('todayCarbBar',totalCarb,CARB_GOAL);
+  setBar2('todayProtBar',totalProt,PROT_GOAL);
+  setBar2('todayFatBar', totalFat, FAT_GOAL);
+
+  // VK 7-day consistency strip
+  renderVKConsistencyStrip();
 
   // Today food list
   const el = document.getElementById('todayFoodList');
@@ -1002,17 +1726,123 @@ function renderToday() {
   }).join('');
 }
 
+function shiftFoodDate(delta) {
+  const el = document.getElementById('foodViewDate');
+  const d = new Date(el.value || today());
+  d.setDate(d.getDate() + delta);
+  el.value = toDateStr(d);
+  renderFoodLog();
+}
+
 function renderFoodLog() {
-  const todayFoods = foodLog.filter(f=>f.date===today());
+  // Skip heavy rendering if food panel isn't active (called from renderAll)
+  const panel = document.getElementById('panel-food');
+  if (panel && !panel.classList.contains('active')) return;
+  const viewDate = document.getElementById('foodViewDate')?.value || today();
+  const dayFoods = foodLog.filter(f=>f.date===viewDate);
   const el = document.getElementById('foodLogList');
-  if (!todayFoods.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div>Nothing logged yet today.</div></div>'; return; }
-  el.innerHTML='<table class="food-table"><thead><tr><th>Food</th><th>Meal</th><th>VK</th><th>kcal</th><th></th></tr></thead><tbody>'+
-    todayFoods.map(f=>{const cls=f.vk>=100?'vk-high':f.vk>=20?'vk-med':'vk-low';
-      return `<tr><td><div style="font-weight:500">${f.name}</div><div style="font-size:11px;color:var(--muted)">${f.qty} ${f.unit}</div></td>
-        <td>${f.meal}</td><td><span class="vk-badge ${cls}">${f.vk.toFixed(0)}</span></td>
-        <td style="font-family:var(--mono);font-size:13px">${Math.round(f.kcal)}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="deleteFood('${f.ts}')">✕</button></td></tr>`;
-    }).join('')+'</tbody></table>';
+
+  // Calorie goals
+  const KCAL_GOAL = 2000, CARB_GOAL = 250, PROT_GOAL = 80, FAT_GOAL = 65;
+  const totalKcal = dayFoods.reduce((a,f)=>a+f.kcal,0);
+  const totalCarb = dayFoods.reduce((a,f)=>a+f.carb,0);
+  const totalProt = dayFoods.reduce((a,f)=>a+f.protein,0);
+  const totalFat  = dayFoods.reduce((a,f)=>a+f.fat,0);
+  const totalVK   = dayFoods.reduce((a,f)=>a+f.vk,0);
+  const vkGoal    = settings.vkGoal || 90;
+
+  // Update daily summary card
+  const ringEl = document.getElementById('kcalRing');
+  if (ringEl) {
+    const ctx = ringEl.getContext('2d');
+    ctx.clearRect(0,0,90,90);
+    const pct = Math.min(totalKcal/KCAL_GOAL, 1);
+    const angle = pct * Math.PI * 2;
+    // track
+    ctx.beginPath(); ctx.arc(45,45,36,0,Math.PI*2);
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=8; ctx.stroke();
+    // fill
+    if (pct > 0) {
+      ctx.beginPath(); ctx.arc(45,45,36,-Math.PI/2,-Math.PI/2+angle);
+      const color = pct>1?'#ef4444':pct>0.85?'#f59e0b':'#10b981';
+      ctx.strokeStyle=color; ctx.lineWidth=8; ctx.lineCap='round'; ctx.stroke();
+    }
+    const rkEl = document.getElementById('ringKcal'); if(rkEl) rkEl.textContent = Math.round(totalKcal);
+  }
+
+  // Macro bars
+  const setBar = (id, val, goal, valElId, suffix) => {
+    const pct = Math.min((val/goal)*100, 100);
+    const el2 = document.getElementById(id); if(el2) el2.style.width=pct+'%';
+    const vel = document.getElementById(valElId); if(vel) vel.textContent=val.toFixed(0)+suffix;
+  };
+  setBar('carbBar', totalCarb, CARB_GOAL, 'carbVal', 'g');
+  setBar('protBar', totalProt, PROT_GOAL, 'protVal', 'g');
+  setBar('fatBar',  totalFat,  FAT_GOAL,  'fatVal',  'g');
+  setBar('vkBar',   totalVK,   vkGoal,    'vkVal',   'mcg');
+
+  // Goal pills
+  const gpEl = document.getElementById('goalPills');
+  if (gpEl) gpEl.innerHTML = [
+    {label:'Calories', val:Math.round(totalKcal), goal:KCAL_GOAL, unit:'kcal', color:'#10b981'},
+    {label:'Carbs',    val:Math.round(totalCarb), goal:CARB_GOAL, unit:'g',    color:'#f59e0b'},
+    {label:'Protein',  val:Math.round(totalProt), goal:PROT_GOAL, unit:'g',    color:'#3b82f6'},
+    {label:'Fat',      val:Math.round(totalFat),  goal:FAT_GOAL,  unit:'g',    color:'#8b5cf6'},
+    {label:'Vit K',    val:Math.round(totalVK),   goal:vkGoal,    unit:'mcg',  color:'#10b981'},
+  ].map(g=>{
+    const rem = g.goal - g.val;
+    return `<div class="goal-pill">
+      <div class="goal-pill-val" style="color:${g.val>g.goal?'#ef4444':g.color}">${g.val}</div>
+      <div class="goal-pill-lbl">${g.label}</div>
+      <div class="goal-pill-rem">${rem>=0?rem+' left':'over by '+Math.abs(rem)} ${g.unit}</div>
+    </div>`;
+  }).join('');
+
+  // Meal sections MFP style
+  if (!dayFoods.length) {
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div>Nothing logged for this day.<br>Use "Add Food" above.</div></div>';
+    return;
+  }
+
+  const meals = ['Breakfast','Lunch','Dinner','Snack'];
+  el.innerHTML = meals.map(meal=>{
+    const mf = dayFoods.filter(f=>f.meal===meal);
+    if (!mf.length) return '';
+    const mKcal = mf.reduce((a,f)=>a+f.kcal,0);
+    const mCarb = mf.reduce((a,f)=>a+f.carb,0);
+    const mProt = mf.reduce((a,f)=>a+f.protein,0);
+    const mFat  = mf.reduce((a,f)=>a+f.fat,0);
+    const mVK   = mf.reduce((a,f)=>a+f.vk,0);
+    return `<div class="meal-section">
+      <div class="meal-header">
+        <span class="meal-header-name">${meal}</span>
+        <span class="meal-header-stats">${Math.round(mKcal)} kcal &nbsp;·&nbsp; 🥬 ${mVK.toFixed(0)}mcg</span>
+      </div>
+      ${mf.map(f=>{
+        const cls=f.vk>=100?'vk-high':f.vk>=20?'vk-med':'vk-low';
+        const isSample = f.ts && String(f.ts).startsWith('sf');
+        return `<div class="meal-food-row" style="${isSample?'opacity:0.75;background:#fffbeb':''}">
+          <div style="flex:1">
+            <div class="meal-food-name">${f.name}${isSample?' <span style="font-size:9px;color:#b45309;background:#fef3c7;padding:1px 5px;border-radius:3px;font-weight:600">SAMPLE</span>':''}</div>
+            <div class="meal-food-portion">${f.qty} ${f.unit}</div>
+          </div>
+          <div class="meal-food-nutrients">
+            <span title="Carbs">${f.carb.toFixed(0)}g C</span>
+            <span title="Protein">${f.protein.toFixed(0)}g P</span>
+            <span title="Fat">${f.fat.toFixed(0)}g F</span>
+            <span class="vk-badge ${cls}">${f.vk.toFixed(0)}mcg</span>
+          </div>
+          <div class="meal-food-kcal">${Math.round(f.kcal)}</div>
+          <button class="btn btn-danger btn-sm" style="margin-left:8px" onclick="deleteFood('${f.ts}')">✕</button>
+        </div>`;
+      }).join('')}
+      <div class="meal-total-row">
+        <span>Total</span>
+        <span>${mCarb.toFixed(0)}g C &nbsp; ${mProt.toFixed(0)}g P &nbsp; ${mFat.toFixed(0)}g F &nbsp; 🥬${mVK.toFixed(0)}mcg</span>
+        <span>${Math.round(mKcal)} kcal</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderHistory() {
@@ -1035,64 +1865,207 @@ function renderHistory() {
   renderCharts();
 }
 
+// ── Chart state ────────────────────────────────────
+let chartDays = 90; // default 3 months
+let chartPoints = []; // store for tooltip
+
+function setRange(days, btn) {
+  chartDays = days;
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  // Set from/to inputs
+  const to = new Date();
+  const from = new Date(); from.setDate(from.getDate() - (days === 99999 ? 3650 : days));
+  document.getElementById('chartFrom').value = days === 99999 ? (inrLog[0]?.date || toDateStr(from)) : toDateStr(from);
+  document.getElementById('chartTo').value = toDateStr(to);
+  renderCharts();
+}
+
 function renderCharts() {
-  // INR chart
+  const panel = document.getElementById('panel-history');
+  if (!panel || !panel.classList.contains('active')) return;
+  renderINRChart();
+  renderVKChart();
+}
+
+function renderINRChart() {
   const c1 = document.getElementById('inrChart');
+  if (!c1) return;
   const ctx1 = c1.getContext('2d');
-  const W = c1.offsetWidth||700, H=130;
-  c1.width=W; c1.height=H;
+  const W = c1.parentElement.offsetWidth || 660, H = 160;
+  c1.width = W; c1.height = H;
   ctx1.clearRect(0,0,W,H);
-  const data = inrLog.slice(-30);
-  if (data.length>=2) {
-    const vals=data.map(d=>d.val), minV=1.0, maxV=Math.max(4.5,...vals);
-    const s=settings;
-    // target band
-    const yL=H-((s.targetLow-minV)/(maxV-minV))*(H-30)-15;
-    const yH=H-((s.targetHigh-minV)/(maxV-minV))*(H-30)-15;
-    ctx1.fillStyle='rgba(16,185,129,0.1)'; ctx1.fillRect(0,yH,W,yL-yH);
-    // line
-    ctx1.beginPath(); ctx1.strokeStyle='#3b82f6'; ctx1.lineWidth=2;
-    data.forEach((d,i)=>{
-      const x=(i/(data.length-1))*(W-20)+10;
-      const y=H-((d.val-minV)/(maxV-minV))*(H-30)-15;
-      i===0?ctx1.moveTo(x,y):ctx1.lineTo(x,y);
-    });
-    ctx1.stroke();
-    // dots
-    data.forEach((d,i)=>{
-      const x=(i/(data.length-1))*(W-20)+10;
-      const y=H-((d.val-minV)/(maxV-minV))*(H-30)-15;
-      const color=d.val<s.targetLow?'#f59e0b':d.val>s.targetHigh?'#ef4444':'#10b981';
-      ctx1.beginPath(); ctx1.arc(x,y,4,0,Math.PI*2); ctx1.fillStyle=color; ctx1.fill();
-      ctx1.fillStyle='#64748b'; ctx1.font='10px monospace'; ctx1.fillText(d.val.toFixed(1),x-8,y-8);
-    });
-    // target labels
-    ctx1.setLineDash([4,3]); ctx1.strokeStyle='rgba(16,185,129,0.6)'; ctx1.lineWidth=1;
-    ctx1.beginPath(); ctx1.moveTo(0,yH); ctx1.lineTo(W,yH); ctx1.stroke();
-    ctx1.beginPath(); ctx1.moveTo(0,yL); ctx1.lineTo(W,yL); ctx1.stroke();
-    ctx1.setLineDash([]);
+
+  // Filter by date range
+  const fromVal = document.getElementById('chartFrom')?.value;
+  const toVal = document.getElementById('chartTo')?.value;
+  let data = [...inrLog].sort((a,b)=>a.date.localeCompare(b.date));
+  if (fromVal) data = data.filter(d => d.date >= fromVal);
+  if (toVal)   data = data.filter(d => d.date <= toVal);
+  if (data.length < 2) {
+    ctx1.fillStyle='var(--muted)'; ctx1.font='13px sans-serif';
+    ctx1.fillText('Not enough data for selected range', W/2-100, H/2);
+    document.getElementById('inrXAxis').innerHTML='';
+    document.getElementById('inrStatsStrip').innerHTML='';
+    return;
   }
-  // VK chart
-  const c2=document.getElementById('vkChart');
-  const ctx2=c2.getContext('2d');
-  const W2=c2.offsetWidth||700, H2=100;
+
+  const s = settings;
+  const PADB=30, PADT=16, PADL=0, PADR=10;
+  const plotH = H - PADB - PADT;
+  const plotW = W - PADL - PADR;
+  const vals = data.map(d=>d.val);
+  const minV = Math.max(0.5, Math.min(...vals) - 0.3);
+  const maxV = Math.max(Math.max(...vals) + 0.3, s.targetHigh + 0.5);
+
+  function xPos(i) { return PADL + (i/(data.length-1)) * plotW; }
+  function yPos(v) { return PADT + plotH - ((v-minV)/(maxV-minV)) * plotH; }
+
+  // Target band
+  ctx1.fillStyle = 'rgba(16,185,129,0.12)';
+  ctx1.fillRect(PADL, yPos(s.targetHigh), plotW+PADR, yPos(s.targetLow)-yPos(s.targetHigh));
+
+  // Target dashed lines with labels
+  ctx1.setLineDash([5,4]); ctx1.lineWidth=1; ctx1.strokeStyle='rgba(16,185,129,0.5)';
+  [s.targetLow, s.targetHigh].forEach(v=>{
+    const y=yPos(v);
+    ctx1.beginPath(); ctx1.moveTo(PADL,y); ctx1.lineTo(W-PADR,y); ctx1.stroke();
+    ctx1.fillStyle='rgba(16,185,129,0.8)'; ctx1.font='9px monospace';
+    ctx1.fillText(v.toFixed(1), W-PADR-14, y-2);
+  });
+  ctx1.setLineDash([]);
+
+  // Gradient fill under line
+  const grad = ctx1.createLinearGradient(0, PADT, 0, H-PADB);
+  grad.addColorStop(0, 'rgba(59,130,246,0.15)');
+  grad.addColorStop(1, 'rgba(59,130,246,0)');
+  ctx1.beginPath();
+  data.forEach((d,i)=>{ i===0?ctx1.moveTo(xPos(i),yPos(d.val)):ctx1.lineTo(xPos(i),yPos(d.val)); });
+  ctx1.lineTo(xPos(data.length-1), H-PADB);
+  ctx1.lineTo(xPos(0), H-PADB);
+  ctx1.closePath(); ctx1.fillStyle=grad; ctx1.fill();
+
+  // Line
+  ctx1.beginPath(); ctx1.strokeStyle='#3b82f6'; ctx1.lineWidth=2.5;
+  data.forEach((d,i)=>{ i===0?ctx1.moveTo(xPos(i),yPos(d.val)):ctx1.lineTo(xPos(i),yPos(d.val)); });
+  ctx1.stroke();
+
+  // Dots + store positions for tooltip
+  chartPoints = [];
+  data.forEach((d,i)=>{
+    const x=xPos(i), y=yPos(d.val);
+    const color=d.val<s.targetLow?'#f59e0b':d.val>s.targetHigh?'#ef4444':'#10b981';
+    ctx1.beginPath(); ctx1.arc(x,y,5,0,Math.PI*2);
+    ctx1.fillStyle='#fff'; ctx1.fill();
+    ctx1.strokeStyle=color; ctx1.lineWidth=2.5; ctx1.stroke();
+    // value label (only show for sparse data or extremes)
+    if (data.length <= 20 || d.val < s.targetLow || d.val > s.targetHigh) {
+      ctx1.fillStyle=color; ctx1.font='bold 10px monospace';
+      ctx1.fillText(d.val.toFixed(1), x - (d.val>=10?8:6), y-10);
+    }
+    chartPoints.push({x, y, d});
+  });
+
+  // X-axis date labels (smart: show ~6 evenly spaced)
+  const xAxisEl = document.getElementById('inrXAxis');
+  const step = Math.max(1, Math.floor(data.length/6));
+  const xLabels = [];
+  for (let i=0; i<data.length; i+=step) {
+    const d = data[i];
+    const pct = data.length===1 ? 0 : (i/(data.length-1))*100;
+    xLabels.push(`<span style="position:absolute;left:${pct}%;transform:translateX(-50%)">${d.date.slice(5)}</span>`);
+  }
+  // Always include last
+  const lastD = data[data.length-1];
+  xLabels.push(`<span style="position:absolute;right:0">${lastD.date.slice(5)}</span>`);
+  xAxisEl.style.position='relative'; xAxisEl.style.height='16px';
+  xAxisEl.innerHTML = xLabels.join('');
+
+  // Y-axis labels
+  const yAxisEl = document.getElementById('inrYAxis');
+  const yTicks = [];
+  const tickStep = (maxV-minV) > 3 ? 1 : 0.5;
+  for (let v=Math.ceil(minV*2)/2; v<=maxV; v+=tickStep) {
+    const y = yPos(v);
+    if (y > PADT && y < H-PADB) {
+      yTicks.push(`<div style="position:absolute;top:${y}px;right:2px;transform:translateY(-50%);font-size:9px;color:var(--muted);font-family:monospace">${v.toFixed(1)}</div>`);
+    }
+  }
+  yAxisEl.style.position='relative'; yAxisEl.innerHTML=yTicks.join('');
+
+  // Stats strip
+  const inRange = data.filter(d=>d.val>=s.targetLow&&d.val<=s.targetHigh).length;
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const statsEl = document.getElementById('inrStatsStrip');
+  statsEl.innerHTML = [
+    {label:'Readings', val:data.length, color:'var(--text)'},
+    {label:'Time in Range', val:Math.round(inRange/data.length*100)+'%', color:'#10b981'},
+    {label:'Average INR', val:avg.toFixed(2), color:'#3b82f6'},
+    {label:'Min', val:Math.min(...vals).toFixed(1), color:'#f59e0b'},
+    {label:'Max', val:Math.max(...vals).toFixed(1), color:'#ef4444'},
+  ].map(s=>`<div class="goal-pill"><div class="goal-pill-val" style="color:${s.color}">${s.val}</div><div class="goal-pill-lbl">${s.label}</div></div>`).join('');
+
+  // Tooltip on hover
+  c1.onmousemove = (e) => {
+    const rect = c1.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width);
+    const tip = document.getElementById('inrTooltip');
+    let closest = null, minDist = 30;
+    chartPoints.forEach(p=>{ const dist=Math.abs(p.x-mx); if(dist<minDist){minDist=dist;closest=p;} });
+    if (closest) {
+      const color=closest.d.val<s.targetLow?'#f59e0b':closest.d.val>s.targetHigh?'#ef4444':'#10b981';
+      tip.style.display='block';
+      tip.style.left = Math.min(closest.x, W-120)+'px';
+      tip.style.top = (closest.y-40)+'px';
+      tip.innerHTML = `<span style="color:${color}">●</span> <strong>${closest.d.val}</strong> &nbsp;${closest.d.date}${closest.d.dose?'&nbsp;💊'+closest.d.dose+'mg':''}`;
+    } else { tip.style.display='none'; }
+  };
+  c1.onmouseleave = () => { document.getElementById('inrTooltip').style.display='none'; };
+}
+
+function renderVKChart() {
+  const c2 = document.getElementById('vkChart');
+  if (!c2) return;
+  const ctx2 = c2.getContext('2d');
+  const W2 = c2.parentElement.offsetWidth || 640, H2 = 110;
   c2.width=W2; c2.height=H2; ctx2.clearRect(0,0,W2,H2);
   const days=[]; for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(toDateStr(d));}
   const vks=days.map(d=>foodLog.filter(f=>f.date===d).reduce((a,f)=>a+f.vk,0));
-  const maxV2=Math.max(...vks,settings.vkGoal*1.5,10);
-  const bw=(W2-40)/7;
+  const maxV2=Math.max(...vks, settings.vkGoal*1.6, 10);
+  const PADB=20, bw=(W2)/7;
   vks.forEach((v,i)=>{
-    const bh=(v/maxV2)*(H2-25);
-    const x=20+i*bw;
+    const bh=(v/maxV2)*(H2-PADB-10);
+    const x=i*bw;
     const color=v>settings.vkGoal*1.5?'#ef4444':v>settings.vkGoal?'#f59e0b':'#3b82f6';
-    ctx2.fillStyle=color; ctx2.fillRect(x+2,H2-bh-18,bw-6,bh);
-    ctx2.fillStyle='#9ca3af'; ctx2.font='9px sans-serif'; ctx2.fillText(days[i].slice(5),x+2,H2-4);
-    if(v>0){ctx2.fillStyle='#374151';ctx2.fillText(Math.round(v),x+2,H2-bh-20);}
+    // bar
+    ctx2.fillStyle=color+'33';
+    ctx2.fillRect(x+3, H2-PADB-bh, bw-6, bh);
+    ctx2.fillStyle=color;
+    ctx2.fillRect(x+3, H2-PADB-bh, bw-6, Math.min(bh,3));
+    // value
+    if(v>0){ctx2.fillStyle=color;ctx2.font='bold 10px monospace';ctx2.fillText(Math.round(v),x+4,H2-PADB-bh-3);}
   });
-  const gy=H2-(settings.vkGoal/maxV2)*(H2-25)-18;
-  ctx2.setLineDash([4,3]); ctx2.strokeStyle='#10b981'; ctx2.lineWidth=1.5;
-  ctx2.beginPath(); ctx2.moveTo(20,gy); ctx2.lineTo(W2-10,gy); ctx2.stroke();
-  ctx2.setLineDash([]); ctx2.fillStyle='#10b981'; ctx2.font='10px sans-serif'; ctx2.fillText('Goal',W2-35,gy-3);
+  // Goal line
+  const gy=H2-PADB-(settings.vkGoal/maxV2)*(H2-PADB-10);
+  ctx2.setLineDash([5,3]); ctx2.strokeStyle='#10b981'; ctx2.lineWidth=1.5;
+  ctx2.beginPath(); ctx2.moveTo(0,gy); ctx2.lineTo(W2,gy); ctx2.stroke();
+  ctx2.setLineDash([]);
+
+  // x-axis date labels via DOM
+  const xAxisEl = document.getElementById('vkXAxis');
+  if (xAxisEl) {
+    xAxisEl.innerHTML = days.map((d,i)=>`<span>${d.slice(5)}</span>`).join('');
+  }
+  // y-axis
+  const yEl = document.getElementById('vkYAxis');
+  if (yEl) {
+    yEl.style.position='relative';
+    const ticks = [0, Math.round(settings.vkGoal/2), settings.vkGoal, Math.round(maxV2*0.9)];
+    yEl.innerHTML = ticks.map(v=>{
+      const y = H2-PADB-(v/maxV2)*(H2-PADB-10);
+      return `<div style="position:absolute;top:${y}px;right:2px;transform:translateY(-50%);font-size:9px;color:var(--muted);font-family:monospace">${v}</div>`;
+    }).join('');
+  }
 }
 
 function renderVKGuide() {
@@ -1120,6 +2093,50 @@ function quickAdd(idx) {
 // ═══════════════════════════════════════════════
 //  EXPORT / IMPORT JSON BACKUP
 // ═══════════════════════════════════════════════
+async function deleteByRange(type) {
+  const from = document.getElementById('deleteFrom')?.value;
+  const to   = document.getElementById('deleteTo')?.value;
+  if (!from || !to) { alert('Please select both a From and To date.'); return; }
+  if (from > to) { alert('From date must be before To date.'); return; }
+
+  if (type === 'food') {
+    const toDelete = foodLog.filter(f => f.date >= from && f.date <= to);
+    if (!toDelete.length) { alert(`No food entries found between ${from} and ${to}.`); return; }
+    if (!confirm(`Delete ${toDelete.length} food entries between ${from} and ${to}?`)) return;
+    for (const f of toDelete) {
+      try { await api({action:'deleteFood', ts:String(f.ts)}); } catch(e){}
+    }
+    foodLog = foodLog.filter(f => !(f.date >= from && f.date <= to));
+    alert(`✅ Deleted ${toDelete.length} food entries.`);
+  } else {
+    const toDelete = inrLog.filter(r => r.date >= from && r.date <= to);
+    if (!toDelete.length) { alert(`No INR readings found between ${from} and ${to}.`); return; }
+    if (!confirm(`Delete ${toDelete.length} INR readings between ${from} and ${to}?`)) return;
+    for (const r of toDelete) {
+      try { await api({action:'deleteINR', ts:String(r.ts)}); } catch(e){}
+    }
+    inrLog = inrLog.filter(r => !(r.date >= from && r.date <= to));
+    alert(`✅ Deleted ${toDelete.length} INR readings.`);
+  }
+  renderAll();
+}
+
+async function deleteSampleData() {
+  const sampleFoods = foodLog.filter(f => f.ts && String(f.ts).startsWith('sf'));
+  if (!sampleFoods.length) { alert('No sample food data found — already deleted!'); return; }
+  if (!confirm(`Delete ${sampleFoods.length} sample food entries? Your real logged food will not be affected.`)) return;
+  for (const f of sampleFoods) {
+    try { await api({action:'deleteFood', ts:String(f.ts)}); } catch(e){}
+  }
+  foodLog = foodLog.filter(f => !(f.ts && String(f.ts).startsWith('sf')));
+  // Also clear from localStorage offline store
+  const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
+  local.foodLog = local.foodLog.filter(f => !(f.ts && String(f.ts).startsWith('sf')));
+  localStorage.setItem('inrOfflineData', JSON.stringify(local));
+  alert(`✅ Deleted ${sampleFoods.length} sample food entries.`);
+  renderAll();
+}
+
 function exportJSON() {
   const blob=new Blob([JSON.stringify({inrLog,foodLog,settings},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
@@ -1149,15 +2166,298 @@ async function importJSON(event) {
 }
 
 // ═══════════════════════════════════════════════
+//  INSIGHTS
+// ═══════════════════════════════════════════════
+function renderVKConsistencyStrip() {
+  const el = document.getElementById('vkConsistencyStrip');
+  if (!el) return;
+  const days = [];
+  for (let i=6;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); days.push(toDateStr(d)); }
+  const goal = settings.vkGoal || 90;
+  const vks = days.map(d=>foodLog.filter(f=>f.date===d).reduce((a,f)=>a+f.vk,0));
+  const avg = vks.filter(v=>v>0).reduce((a,b)=>a+b,0) / (vks.filter(v=>v>0).length||1);
+  const maxV = Math.max(...vks, goal, 10);
+
+  el.innerHTML = `<div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:6px">`+
+    days.map((d,i)=>{
+      const v = vks[i];
+      const barPct = Math.min((v/maxV)*60,60);
+      const color = v===0?'#e2e8f0':v>goal*1.5?'#ef4444':v>goal?'#f59e0b':'#10b981';
+      const bgColor = v===0?'#f8fafc':v>goal*1.5?'#fef2f2':v>goal?'#fffbeb':'#ecfdf5';
+      const dayLabel = new Date(d+'T12:00:00').toLocaleDateString('en',{weekday:'short'}).slice(0,2);
+      return `<div class="vk-day-cell" style="background:${bgColor}">
+        <div class="vk-day-date">${dayLabel}</div>
+        <div style="height:50px;display:flex;align-items:flex-end;justify-content:center">
+          <div style="width:20px;background:${color};border-radius:3px 3px 0 0;height:${barPct}px;min-height:${v>0?2:0}px;transition:height .4s"></div>
+        </div>
+        <div class="vk-day-val" style="color:${color}">${v>0?Math.round(v):'—'}</div>
+      </div>`;
+    }).join('')+`</div>
+    <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
+      <span>7-day avg: <strong style="color:var(--text)">${Math.round(avg)} mcg</strong></span>
+      <span>Goal: <strong>${goal} mcg</strong></span>
+      <span id="vkVarianceLabel"></span>
+    </div>`;
+
+  // Variance analysis
+  const nonZero = vks.filter(v=>v>0);
+  if (nonZero.length >= 3) {
+    const mean = nonZero.reduce((a,b)=>a+b)/nonZero.length;
+    const variance = Math.sqrt(nonZero.reduce((a,b)=>a+(b-mean)**2,0)/nonZero.length);
+    const cv = (variance/mean*100).toFixed(0);
+    const label = document.getElementById('vkVarianceLabel');
+    if (label) {
+      if (cv < 20) label.innerHTML = `Variability: <strong style="color:#10b981">Low ✓</strong>`;
+      else if (cv < 40) label.innerHTML = `Variability: <strong style="color:#f59e0b">Moderate ⚠️</strong>`;
+      else label.innerHTML = `Variability: <strong style="color:#ef4444">High — INR risk</strong>`;
+    }
+  }
+}
+
+function renderInsights() {
+  const panel = document.getElementById('panel-insights');
+  if (!panel || !panel.classList.contains('active')) return;
+  populateComparisonSelects();
+  renderVKConsistencyScore();
+  renderVKHeatmap();
+  renderOverlayChart();
+}
+
+function populateComparisonSelects() {
+  const selA = document.getElementById('compareA');
+  const selB = document.getElementById('compareB');
+  if (!selA || !selB) return;
+  const sorted = [...inrLog].sort((a,b)=>b.date.localeCompare(a.date));
+  const opts = sorted.map(r=>`<option value="${r.ts}">${r.date} — INR ${r.val}</option>`).join('');
+  selA.innerHTML = opts;
+  selB.innerHTML = opts;
+  // Default: compare last two readings
+  if (sorted.length >= 2) {
+    selA.value = sorted[1].ts;
+    selB.value = sorted[0].ts;
+    runComparison();
+  }
+}
+
+function runComparison() {
+  const selA = document.getElementById('compareA');
+  const selB = document.getElementById('compareB');
+  const el = document.getElementById('comparisonResult');
+  if (!selA||!selB||!el) return;
+  const rA = inrLog.find(r=>String(r.ts)===selA.value);
+  const rB = inrLog.find(r=>String(r.ts)===selB.value);
+  if (!rA||!rB||rA===rB) { el.innerHTML=''; return; }
+
+  const [before,after] = rA.date < rB.date ? [rA,rB] : [rB,rA];
+  const diff = after.val - before.val;
+  const arrow = diff>0?'↑':'↓';
+  const color = Math.abs(diff)>0.5?'#ef4444':Math.abs(diff)>0.2?'#f59e0b':'#10b981';
+
+  // Get food logs for 3 days before each reading (VK takes 2-3 days to affect INR)
+  function vkWindow(dateStr) {
+    const foods = [];
+    for (let i=1;i<=3;i++) {
+      const d = new Date(dateStr+'T12:00:00'); d.setDate(d.getDate()-i);
+      foods.push(...foodLog.filter(f=>f.date===toDateStr(d)));
+    }
+    return foods;
+  }
+  const foodsBefore = vkWindow(before.date);
+  const foodsAfter  = vkWindow(after.date);
+  const vkBefore = foodsBefore.reduce((a,f)=>a+f.vk,0);
+  const vkAfter  = foodsAfter.reduce((a,f)=>a+f.vk,0);
+  const vkDiff   = vkAfter - vkBefore;
+  const hasFood  = foodsBefore.length>0||foodsAfter.length>0;
+
+  let insight = '';
+  if (!hasFood) {
+    insight = `<div class="alert alert-info" style="margin-top:12px"><span class="alert-icon">📝</span><div>No food logs found for these dates. Start logging meals to get dietary analysis.</div></div>`;
+  } else if (Math.abs(vkDiff) > 30 && diff > 0.3 && vkDiff < 0) {
+    insight = `<div class="alert alert-warn" style="margin-top:12px"><span class="alert-icon">🥬</span><div><strong>Likely cause: Vitamin K drop.</strong> Vit K intake was ~${Math.abs(Math.round(vkDiff))} mcg lower in the days before the higher reading. Less Vit K → less warfarin competition → INR rises.</div></div>`;
+  } else if (Math.abs(vkDiff) > 30 && diff < -0.3 && vkDiff > 0) {
+    insight = `<div class="alert alert-warn" style="margin-top:12px"><span class="alert-icon">🥬</span><div><strong>Likely cause: Vitamin K spike.</strong> Vit K intake was ~${Math.round(vkDiff)} mcg higher before the lower reading. More Vit K → competes with warfarin → INR falls.</div></div>`;
+  } else if (Math.abs(diff) > 0.5) {
+    insight = `<div class="alert alert-info" style="margin-top:12px"><span class="alert-icon">🔍</span><div>INR changed by ${Math.abs(diff.toFixed(1))} but food logs don't show a clear Vit K pattern. Consider: missed dose, illness, new medication, alcohol, or stress.</div></div>`;
+  } else {
+    insight = `<div class="alert alert-good" style="margin-top:12px"><span class="alert-icon">✅</span><div>Small change (${Math.abs(diff.toFixed(1))} points) — within normal fluctuation. No dietary cause likely needed.</div></div>`;
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);margin-top:4px;flex-wrap:wrap">
+      <div style="text-align:center;flex:1;min-width:80px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${before.date}</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600">${before.val}</div>
+        <div style="font-size:11px;color:var(--muted)">INR Before</div>
+        ${vkBefore>0?`<div style="font-size:11px;color:#10b981;margin-top:4px">🥬 ${Math.round(vkBefore)} mcg VK</div>`:''}
+      </div>
+      <div style="font-size:28px;color:${color};font-weight:700;flex-shrink:0">${arrow} ${Math.abs(diff).toFixed(1)}</div>
+      <div style="text-align:center;flex:1;min-width:80px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${after.date}</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:${color}">${after.val}</div>
+        <div style="font-size:11px;color:var(--muted)">INR After</div>
+        ${vkAfter>0?`<div style="font-size:11px;color:#10b981;margin-top:4px">🥬 ${Math.round(vkAfter)} mcg VK</div>`:''}
+      </div>
+    </div>
+    ${insight}`;
+}
+
+function renderVKConsistencyScore() {
+  const el = document.getElementById('vkConsistencyScore');
+  if (!el) return;
+  // Last 30 days with food logged
+  const days30 = [];
+  for (let i=0;i<30;i++) { const d=new Date(); d.setDate(d.getDate()-i); days30.push(toDateStr(d)); }
+  const vks = days30.map(d=>{ const v=foodLog.filter(f=>f.date===d).reduce((a,f)=>a+f.vk,0); return v; }).filter(v=>v>0);
+
+  if (vks.length < 5) {
+    el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:10px 0">Log at least 5 days of food to see your consistency score.</div>`;
+    return;
+  }
+  const mean = vks.reduce((a,b)=>a+b)/vks.length;
+  const sd = Math.sqrt(vks.reduce((a,b)=>a+(b-mean)**2,0)/vks.length);
+  const cv = sd/mean;
+  const score = Math.max(0, Math.round(100 - cv*100));
+  const color = score>=80?'#10b981':score>=60?'#f59e0b':'#ef4444';
+  const label = score>=80?'Excellent — low INR variability risk':score>=60?'Moderate — some dietary inconsistency':score<60?'Needs attention — inconsistent VK may be destabilising INR':'';
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="position:relative;width:80px;height:80px;flex-shrink:0">
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle cx="40" cy="40" r="32" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+          <circle cx="40" cy="40" r="32" fill="none" stroke="${color}" stroke-width="8"
+            stroke-dasharray="${score*2.01} 201" stroke-linecap="round"
+            transform="rotate(-90 40 40)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;font-weight:600;color:${color}">${score}</div>
+      </div>
+      <div>
+        <div style="font-size:16px;font-weight:600;color:${color}">${label}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Based on ${vks.length} logged days · Avg: ${Math.round(mean)} mcg/day · SD: ±${Math.round(sd)} mcg</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Target: keep daily Vit K within ±30 mcg of your average</div>
+      </div>
+    </div>`;
+}
+
+function renderVKHeatmap() {
+  const el = document.getElementById('vkHeatmap');
+  if (!el) return;
+  const goal = settings.vkGoal || 90;
+  const days = [];
+  for (let i=29;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); days.push(toDateStr(d)); }
+  el.innerHTML = days.map(d=>{
+    const v = foodLog.filter(f=>f.date===d).reduce((a,f)=>a+f.vk,0);
+    const hasData = foodLog.some(f=>f.date===d);
+    const bg = !hasData?'#f1f5f9':v>goal*2?'#fee2e2':v>goal?'#fef3c7':v>goal*0.3?'#dcfce7':'#f0fdf4';
+    const txt = !hasData?'':'';
+    const shortDate = d.slice(5);
+    return `<div class="heatmap-cell" style="background:${bg}" title="${d}: ${hasData?Math.round(v)+' mcg':'no data'}">
+      <div class="heatmap-tip">${d}<br>${hasData?Math.round(v)+' mcg VK':'no food logged'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverlayChart() {
+  const c = document.getElementById('overlayChart');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.parentElement.offsetWidth||640, H=160;
+  c.width=W; c.height=H; ctx.clearRect(0,0,W,H);
+
+  // Use INR readings as x-axis anchor; get weekly VK avg for each
+  const sorted = [...inrLog].sort((a,b)=>a.date.localeCompare(b.date)).slice(-20);
+  if (sorted.length < 2) { ctx.fillStyle='var(--muted)'; ctx.font='13px sans-serif'; ctx.fillText('Not enough data',W/2-60,H/2); return; }
+
+  // For each INR reading, compute avg VK for 3 days prior
+  const points = sorted.map(r=>{
+    let totalVK=0, count=0;
+    for(let i=1;i<=3;i++){
+      const d=new Date(r.date+'T12:00:00'); d.setDate(d.getDate()-i);
+      const dayVK=foodLog.filter(f=>f.date===toDateStr(d)).reduce((a,f)=>a+f.vk,0);
+      if(dayVK>0){totalVK+=dayVK;count++;}
+    }
+    return {...r, avgVK: count>0?totalVK/count:null};
+  });
+
+  const inrVals = points.map(p=>p.val);
+  const vkVals  = points.filter(p=>p.avgVK!=null).map(p=>p.avgVK);
+  const minINR=1.0, maxINR=Math.max(4.5,...inrVals);
+  const maxVK = Math.max(...vkVals, settings.vkGoal*1.5, 50);
+  const PAD=20;
+
+  function xPos(i) { return PAD+(i/(points.length-1))*(W-PAD*2); }
+  function yINR(v) { return PAD+(1-(v-minINR)/(maxINR-minINR))*(H-PAD*2); }
+  function yVK(v)  { return PAD+(1-(v/maxVK))*(H-PAD*2); }
+
+  // target band
+  ctx.fillStyle='rgba(16,185,129,0.08)';
+  ctx.fillRect(PAD,yINR(settings.targetHigh),W-PAD*2,yINR(settings.targetLow)-yINR(settings.targetHigh));
+
+  // VK bars (secondary axis, light fill)
+  points.forEach((p,i)=>{
+    if(p.avgVK==null) return;
+    const x=xPos(i), y=yVK(p.avgVK), barH=H-PAD-y;
+    ctx.fillStyle='rgba(16,185,129,0.15)';
+    ctx.fillRect(x-8,y,16,barH);
+  });
+
+  // INR line
+  ctx.beginPath(); ctx.strokeStyle='#3b82f6'; ctx.lineWidth=2.5;
+  points.forEach((p,i)=>{ i===0?ctx.moveTo(xPos(i),yINR(p.val)):ctx.lineTo(xPos(i),yINR(p.val)); });
+  ctx.stroke();
+
+  // INR dots
+  points.forEach((p,i)=>{
+    const x=xPos(i), y=yINR(p.val);
+    const color=p.val<settings.targetLow?'#f59e0b':p.val>settings.targetHigh?'#ef4444':'#10b981';
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+    ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.fillStyle=color; ctx.font='bold 9px monospace';
+    ctx.fillText(p.val.toFixed(1),x-6,y-8);
+  });
+
+  // X axis labels
+  const xAxisEl=document.getElementById('overlayXAxis');
+  if(xAxisEl){
+    const step=Math.max(1,Math.floor(points.length/5));
+    const labels=[];
+    for(let i=0;i<points.length;i+=step) labels.push(`<span>${points[i].date.slice(5)}</span>`);
+    xAxisEl.innerHTML=labels.join('');
+  }
+
+  // Y axis
+  const yEl=document.getElementById('overlayYAxis');
+  if(yEl){
+    yEl.style.position='relative';
+    const ticks=[minINR,settings.targetLow,settings.targetHigh,maxINR];
+    yEl.innerHTML=ticks.map(v=>{
+      const y=yINR(v);
+      return `<div style="position:absolute;top:${y}px;right:2px;transform:translateY(-50%);font-size:9px;color:var(--muted);font-family:monospace">${v.toFixed(1)}</div>`;
+    }).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════
 //  TABS / UTIL
 // ═══════════════════════════════════════════════
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
-  const tabs=['today','log-inr','food','history','vkguide','settings'];
+  const tabs=['today','log-inr','food','history','insights','vkguide','settings'];
   document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
-  if(id==='history') renderCharts();
+  if (id==='history') {
+    const fromEl = document.getElementById('chartFrom');
+    if (fromEl && !fromEl.value) {
+      const from = new Date(); from.setDate(from.getDate()-90);
+      fromEl.value = toDateStr(from);
+      document.getElementById('chartTo').value = toDateStr(new Date());
+    }
+    renderCharts();
+  }
+  if (id==='food') renderFoodLog();
+  if (id==='insights') renderInsights();
 }
 
 document.addEventListener('click',e=>{
@@ -1166,19 +2466,21 @@ document.addEventListener('click',e=>{
 });
 
 window.addEventListener('load', () => {
-  // Always connected to Google Sheets — URL is hardcoded
   offlineMode = false;
   localStorage.setItem('inrScriptUrl', SCRIPT_URL);
 
-  // Seed local cache with historical data so UI shows immediately while Sheets loads
+  // Seed local cache with INR history + sample food data on first visit
   const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
   if (!local.inrLog.length) {
     local.inrLog = ARPIT_SEED_INR;
     localStorage.setItem('inrOfflineData', JSON.stringify(local));
   }
+  if (!local.foodLog.length) {
+    local.foodLog = buildSampleFoodLog();
+    localStorage.setItem('inrOfflineData', JSON.stringify(local));
+  }
 
-  launchApp(); // renders immediately from local cache
-  // loadAll() is called inside launchApp — fetches live data from Sheets in background
+  launchApp();
 });
 </script>
 </body>
