@@ -544,13 +544,13 @@ const ARPIT_SEED_INR = [
 // ═══════════════════════════════════════════════
 //  STATE & STORAGE
 // ═══════════════════════════════════════════════
-let SCRIPT_URL = localStorage.getItem('inrScriptUrl') || '';
+let SCRIPT_URL = localStorage.getItem('inrScriptUrl') || 'https://script.google.com/macros/s/AKfycbwqEzrVP3EO7--NRk2Ff3FWNQaLVwOb8ukEt8zoe5oeuvg0ZB-v67l62iwaqKjHr4il0Q/exec';
 let settings = JSON.parse(localStorage.getItem('inrSettings') || 'null') || {
   targetLow:2.5, targetHigh:3.5, vkGoal:90, patientName:'Arpit Mehta', warfDose:'5'
 };
 let inrLog = [];
 let foodLog = [];
-let offlineMode = localStorage.getItem('inrOfflineMode') === 'true';
+let offlineMode = false; // always connected — URL is hardcoded
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 async function api(params) {
@@ -615,22 +615,42 @@ function offlineApi(params) {
 async function loadAll() {
   try {
     const data = await api({action:'getAll'});
-    // Parse INR rows: [date, val, dose, notes, ts]
-    inrLog = (data.inrLog||[]).filter(r=>r[0]).map(r=>({
-      date:r[0], val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:r[4]||r[0]
-    })).sort((a,b)=>a.date.localeCompare(b.date));
-    // Parse food rows: [date, name, meal, qty, unit, vk, kcal, carb, protein, fat, ts]
-    foodLog = (data.foodLog||[]).filter(r=>r[0]).map(r=>({
-      date:r[0],name:r[1],meal:r[2],qty:parseFloat(r[3]),unit:r[4],
-      vk:parseFloat(r[5]),kcal:parseFloat(r[6]),carb:parseFloat(r[7]),
-      protein:parseFloat(r[8]),fat:parseFloat(r[9]),ts:r[10]
+    const sheetINR = (data.inrLog||[]).filter(r=>r[0]).map(r=>({
+      date:String(r[0]), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
     }));
+    const sheetFood = (data.foodLog||[]).filter(r=>r[0]).map(r=>({
+      date:String(r[0]),name:r[1],meal:r[2],qty:parseFloat(r[3]),unit:r[4],
+      vk:parseFloat(r[5]),kcal:parseFloat(r[6]),carb:parseFloat(r[7]),
+      protein:parseFloat(r[8]),fat:parseFloat(r[9]),ts:String(r[10])
+    }));
+
+    // If sheet is empty (first time), push all seed data up to Sheets
+    if (sheetINR.length === 0) {
+      setSyncing(true);
+      let count = 0;
+      for (const r of ARPIT_SEED_INR) {
+        try { await api({action:'addINR',date:r.date,val:r.val,dose:r.dose||'',notes:r.notes||'',ts:r.ts}); count++; } catch(e){}
+      }
+      console.log(`Seeded ${count} historical readings to Google Sheets`);
+      // Reload from sheet now that it's populated
+      const data2 = await api({action:'getAll'});
+      inrLog = (data2.inrLog||[]).filter(r=>r[0]).map(r=>({
+        date:String(r[0]), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
+      })).sort((a,b)=>a.date.localeCompare(b.date));
+    } else {
+      inrLog = sheetINR.sort((a,b)=>a.date.localeCompare(b.date));
+    }
+    foodLog = sheetFood;
+
     if (data.settings) {
       settings = {...settings, ...data.settings};
       localStorage.setItem('inrSettings', JSON.stringify(settings));
     }
   } catch(e) {
-    console.error('Load failed:', e);
+    console.error('Load failed — showing cached data:', e);
+    // Fall back to local seed data so UI still works
+    const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
+    if (inrLog.length === 0) inrLog = local.inrLog;
   }
   renderAll();
 }
@@ -731,7 +751,7 @@ async function connectFromSettings() {
 
 function launchApp() {
   document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('syncBar').style.display = offlineMode ? 'none' : 'flex';
+  document.getElementById('syncBar').style.display = 'flex';
   document.getElementById('appHeader').style.display = 'flex';
   document.getElementById('appTabs').style.display = 'flex';
   document.getElementById('appMain').style.display = 'block';
@@ -761,8 +781,7 @@ function loadSettings() {
   document.getElementById('headerSub').textContent =
     `${settings.patientName||'Arpit'} · MICS AVR · Warf-${settings.warfDose||'?'}`;
   const info = document.getElementById('sheetConnectedInfo');
-  if (!SCRIPT_URL || offlineMode) info.innerHTML = '📱 <strong>Running locally</strong> — all history visible. Optionally connect Google Sheets below for cloud sync.';
-  else info.innerHTML = `✅ <strong>Connected to Google Sheets</strong> — data syncs across all family devices. <a href="https://docs.google.com/spreadsheets" target="_blank" style="color:var(--accent)">Open Sheets →</a>`;
+  info.innerHTML = `✅ <strong>Always connected to Google Sheets</strong> — every entry from any family member saves permanently. <a href="https://docs.google.com/spreadsheets" target="_blank" style="color:var(--accent)">Open Sheets →</a>`;
 }
 
 async function saveSettings() {
@@ -1146,25 +1165,20 @@ document.addEventListener('click',e=>{
     document.getElementById('foodSearchResults').classList.remove('open');
 });
 
-// Always launch immediately with seed data visible — Google Sheets is optional
 window.addEventListener('load', () => {
-  // Seed Arpit's historical data into local store if this is first visit
+  // Always connected to Google Sheets — URL is hardcoded
+  offlineMode = false;
+  localStorage.setItem('inrScriptUrl', SCRIPT_URL);
+
+  // Seed local cache with historical data so UI shows immediately while Sheets loads
   const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
   if (!local.inrLog.length) {
     local.inrLog = ARPIT_SEED_INR;
     localStorage.setItem('inrOfflineData', JSON.stringify(local));
   }
 
-  // Always start in offline mode (uses localStorage with seed data)
-  offlineMode = true;
-  launchApp();
-
-  // If a Sheets URL was previously saved, try to sync in background
-  if (SCRIPT_URL) {
-    offlineMode = false;
-    document.getElementById('syncBar').style.display = 'flex';
-    loadAll();
-  }
+  launchApp(); // renders immediately from local cache
+  // loadAll() is called inside launchApp — fetches live data from Sheets in background
 });
 </script>
 </body>
