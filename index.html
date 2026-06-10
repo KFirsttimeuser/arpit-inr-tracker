@@ -567,6 +567,27 @@
         <button class="btn btn-ghost" onclick="clearFoodForm()">Clear</button>
         <span id="addFoodMsg" style="font-size:13px;color:var(--good)"></span>
       </div>
+      <!-- Custom food entry -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">
+          Can't find it? Add custom food
+        </div>
+        <div class="form-row">
+          <div><label>Food Name</label><input type="text" id="customName" placeholder="e.g. Maa na hath no chevdo"></div>
+          <div><label>Serving size</label><input type="text" id="customServing" placeholder="e.g. 1 katori, 2 pieces"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:12px">
+          <div><label>Vit K (mcg)</label><input type="number" id="customVK" placeholder="0" min="0" step="1" value="0"></div>
+          <div><label>Calories</label><input type="number" id="customKcal" placeholder="0" min="0" value=""></div>
+          <div><label>Carbs (g)</label><input type="number" id="customCarb" placeholder="0" min="0" value=""></div>
+          <div><label>Protein (g)</label><input type="number" id="customProtein" placeholder="0" min="0" value=""></div>
+          <div><label>Fat (g)</label><input type="number" id="customFat" placeholder="0" min="0" value=""></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="addCustomFood()">+ Add Custom</button>
+          <span style="font-size:11px;color:var(--muted)">Only Vitamin K is required — enter 0 if unknown for others</span>
+        </div>
+      </div>
     </div>
 
     <!-- Meal-by-meal breakdown MFP style -->
@@ -1074,6 +1095,225 @@ const FOODS = [
   ["Jain kheer (no saffron needed)",    "1 katori (150g)",    1, 250, 40,  7,  7],
   ["Jain shrikhand",                    "1 bowl (80g)",       0, 160, 22,  5,  6],
   ["Jain basundi",                      "1 small bowl (100g)",1, 190, 26,  8,  7],
+
+  // ══════════════════════════════════════════════════════════════════
+  // GUJARATI DISHES — Everyday home cooking
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Shaaks (Vegetable dishes) ─────────────────────────────────────
+  ["Tindora / Tindori shaak",          "1 katori (150g)",   12, 110, 12,  3,  6],
+  ["Tindora shaak (dry, Gujarati)",    "1 katori (150g)",   12, 130, 13,  3,  7],
+  ["Ringna / Brinjal shaak",           "1 katori (150g)",    6, 120, 12,  3,  7],
+  ["Ringna bateta nu shaak",           "1 katori (200g)",    7, 210, 26,  4, 10],
+  ["Dudhi / Lauki shaak",              "1 katori (150g)",    2,  90, 10,  2,  5],
+  ["Dudhi chana dal shaak",            "1 katori (200g)",    3, 180, 26,  8,  5],
+  ["Valor / Sem shaak",                "1 katori (150g)",   47, 140, 18,  6,  5],
+  ["Gawar shaak",                      "1 katori (150g)",   63, 115, 14,  4,  5],
+  ["Turiya / Ridge gourd shaak",       "1 katori (150g)",    3,  95, 11,  2,  5],
+  ["Parval / Pointed gourd shaak",     "1 katori (150g)",    7, 110, 13,  3,  5],
+  ["Karela shaak (Gujarati style)",    "1 katori (150g)",   42, 120, 11,  3,  7],
+  ["Bateta shaak / Aloo curry",        "1 katori (150g)",    3, 160, 22,  3,  7],
+  ["Bateta watana shaak",              "1 katori (200g)",   16, 220, 30,  7,  7],
+  ["Kand / Purple yam shaak",          "1 katori (150g)",    2, 160, 35,  2,  2],
+  ["Arbi / Saryaa nu shaak",           "1 katori (150g)",    4, 160, 32,  3,  3],
+  ["Suran / Yam shaak",                "1 katori (150g)",    3, 160, 34,  2,  3],
+  ["Gobi shaak / Cauliflower curry",   "1 katori (150g)",   16, 130, 13,  4,  7],
+  ["Gobi bateta shaak",                "1 katori (200g)",   10, 200, 22,  5,  9],
+  ["Methi bateta shaak",               "1 katori (200g)",  200, 210, 26,  5,  9],
+  ["Methi matar shaak",                "1 katori (200g)",  195, 200, 24,  9,  7],
+  ["Palak shaak / Spinach curry",      "1 katori (150g)",  370, 120, 10,  6,  7],
+  ["Palak chana dal",                  "1 katori (200g)",  310, 200, 26, 11,  6],
+  ["Undhiyu (traditional)",            "1 katori (200g)",   85, 380, 40, 12, 20],
+  ["Undhiyu (frozen/ready-made)",      "1 katori (200g)",   75, 340, 38, 10, 18],
+  ["Surti undhiyu",                    "1 katori (200g)",   90, 390, 42, 12, 21],
+  ["Bhaji pao / Mixed veg",            "1 plate (250g)",    45, 380, 52,  9, 15],
+  ["Mixed veg curry",                  "1 katori (200g)",   35, 190, 22,  6, 10],
+  ["Sev tameta / Sev tomato",          "1 katori (150g)",   10, 240, 28,  5, 12],
+  ["Tameta nu shaak / Tomato curry",   "1 katori (150g)",   18, 120, 14,  3,  6],
+  ["Fajeto / Raw mango kadhi",         "1 katori (200g)",    2, 150, 18,  5,  6],
+
+  // ── Dal & Kadhi ───────────────────────────────────────────────────
+  ["Gujarati dal (sweet-sour)",        "1 katori (200g)",    5, 160, 26,  8,  3],
+  ["Gujarati dal dhokli",              "1 plate (300g)",     6, 420, 68, 14,  9],
+  ["Dal fry (Gujarati)",               "1 katori (200g)",    4, 180, 28,  9,  4],
+  ["Gujarati kadhi (sweet)",           "1 katori (200g)",    2, 140, 16,  5,  6],
+  ["Kadhi chawal (1 plate)",           "1 plate (350g)",     2, 420, 72, 11,  8],
+  ["Panchmel dal",                     "1 katori (200g)",    5, 200, 34, 12,  3],
+  ["Masala dal",                       "1 katori (200g)",    4, 195, 30, 11,  4],
+
+  // ── Rice dishes ───────────────────────────────────────────────────
+  ["Vagharelo bhaat / Tadka rice",     "1 katori (150g)",    2, 240, 42,  5,  6],
+  ["Khichdi (gujarati, soft)",         "1 katori (200g)",    3, 240, 44,  8,  4],
+  ["Masala khichdi",                   "1 katori (200g)",    5, 280, 46,  9,  7],
+  ["Tomato rice",                      "1 katori (150g)",    8, 220, 38,  5,  5],
+  ["Lemon rice",                       "1 katori (150g)",    1, 230, 40,  5,  6],
+  ["Pulao (veg, Gujarati)",            "1 katori (200g)",    8, 310, 52,  7,  8],
+  ["Matki pulao",                      "1 katori (200g)",    5, 320, 54,  9,  7],
+  ["Vaghareli khichdi",                "1 katori (200g)",    3, 260, 44,  8,  6],
+
+  // ── Rotis & Breads ────────────────────────────────────────────────
+  ["Bhakhri (crispy, plain)",          "2 pieces (60g)",     1, 230, 38,  6,  6],
+  ["Bhakhri (wheat, baked)",           "1 piece (30g)",      1, 110, 18,  3,  3],
+  ["Rotlo / Bajra rotla",              "1 rotlo (100g)",     0, 195, 40,  6,  2],
+  ["Corn rotlo / Makai rotlo",         "1 rotlo (100g)",     0, 190, 40,  5,  2],
+  ["Methi thepla",                     "2 pieces (80g)",   270, 240, 34,  7,  9],
+  ["Methi thepla (thin)",              "1 piece (40g)",    135, 120, 17,  4,  5],
+  ["Puran poli",                       "1 piece (80g)",      2, 260, 46,  6,  6],
+  ["Rotli / Phulka (thin Gujarati)",   "1 piece (30g)",      1,  80, 14,  2,  2],
+  ["Puri (deep fried)",                "2 pieces (60g)",     1, 220, 24,  4, 12],
+  ["Bhatura",                          "1 piece (80g)",      1, 290, 38,  7, 12],
+  ["Masala paratha",                   "1 medium (80g)",     5, 230, 32,  5, 10],
+
+  // ── Snacks & Farsan (Gujarati specialties) ────────────────────────
+  ["Handvo (baked)",                   "1 slice (100g)",     8, 220, 32,  8,  7],
+  ["Handvo (pan-fried)",               "1 slice (100g)",     8, 270, 32,  8, 12],
+  ["Muthia (dudhi)",                   "3 pieces (90g)",     5, 185, 28,  7,  5],
+  ["Muthia (methi)",                   "3 pieces (90g)",   225, 195, 28,  7,  6],
+  ["Muthia (steamed)",                 "3 pieces (90g)",     5, 155, 26,  7,  3],
+  ["Khaman dhokla (soft)",             "2 pieces (80g)",     1,  99, 16,  5,  2],
+  ["Khaman dhokla (with tadka)",       "2 pieces (90g)",     2, 130, 18,  6,  4],
+  ["Nylon khaman (soft spongy)",       "2 pieces (80g)",     1, 110, 18,  5,  2],
+  ["Rava / Suji dhokla",               "2 pieces (80g)",     1, 120, 18,  4,  3],
+  ["Khatta dhokla",                    "2 pieces (80g)",     1,  95, 15,  5,  2],
+  ["Khandvi (plain)",                  "6 rolls (80g)",      1, 150, 16,  7,  6],
+  ["Khandvi (with tadka)",             "6 rolls (90g)",      2, 175, 17,  7,  8],
+  ["Patra / Alu vadi",                 "2 pieces (80g)",    95, 170, 28,  5,  5],
+  ["Patra (steamed)",                  "2 pieces (80g)",    95, 140, 28,  5,  2],
+  ["Patra (fried)",                    "2 pieces (80g)",    95, 200, 28,  5,  8],
+  ["Chakli / Murukku",                 "4 pieces (40g)",     2, 195, 26,  3, 10],
+  ["Gathiya (thick)",                  "1 handful (30g)",    1, 155, 18,  4,  8],
+  ["Gathiya (thin/sev)",               "1 handful (30g)",    1, 150, 18,  4,  7],
+  ["Fafda",                            "2 pieces (30g)",     1, 148, 16,  4,  8],
+  ["Fafda jalebi (combo)",             "1 serving (80g)",    1, 320, 44,  5, 14],
+  ["Ganthia / Papdi",                  "10 pieces (30g)",    1, 145, 18,  3,  7],
+  ["Sev (thin, plain)",                "2 tbsp (20g)",       1,  98, 12,  3,  5],
+  ["Bhujia sev",                       "2 tbsp (20g)",       1, 110, 12,  3,  6],
+  ["Khakhra (methi)",                  "2 pieces (30g)",   135, 125, 20,  4,  4],
+  ["Khakhra (masala)",                 "2 pieces (30g)",     2, 128, 20,  4,  4],
+  ["Khakhra (jeera)",                  "2 pieces (30g)",     1, 118, 20,  4,  3],
+  ["Bhel puri (Surat style)",          "1 plate (120g)",     6, 210, 34,  5,  6],
+  ["Ragda patties",                    "1 plate (200g)",    10, 350, 50, 12, 11],
+  ["Sev khamni",                       "1 plate (150g)",     2, 280, 38,  9, 10],
+  ["Dabeli",                           "1 piece (120g)",     5, 280, 42,  7,  9],
+  ["Batata vada",                      "2 pieces (100g)",    4, 280, 34,  5, 14],
+  ["Batata vada pav",                  "1 (150g)",           5, 380, 52,  8, 16],
+  ["Vada pav (Mumbai style)",          "1 (150g)",           4, 360, 50,  8, 14],
+  ["Pani puri / Golgappa",             "6 pieces (80g)",     2, 185, 30,  4,  6],
+  ["Dahi puri",                        "6 pieces (100g)",    2, 220, 32,  6,  7],
+  ["Sev puri",                         "5 pieces (80g)",     4, 200, 28,  5,  8],
+
+  // ── Gujarati Snacks & Breakfast ───────────────────────────────────
+  ["Sukhdi / Gur papdi",               "1 piece (40g)",      1, 210, 28,  3, 10],
+  ["Chikki (peanut)",                  "1 piece (30g)",      0, 160, 18,  4,  9],
+  ["Chikki (sesame / til)",            "1 piece (30g)",     22, 155, 18,  3,  8],
+  ["Mohanthal",                        "1 piece (40g)",      1, 210, 28,  4, 10],
+  ["Ghughra / Gujiya",                 "1 piece (50g)",      1, 210, 28,  4  , 9],
+  ["Chakkar puri",                     "2 pieces (40g)",     1, 190, 24,  3, 10],
+  ["Nankhatai",                        "2 pieces (30g)",     1, 155, 19,  2,  8],
+  ["Shankarpali",                      "1 handful (30g)",    1, 155, 20,  3,  8],
+  ["Magas / Besan barfi",              "1 piece (40g)",      1, 210, 26,  5,  9],
+  ["Lapsi / Broken wheat porridge",    "1 katori (150g)",    1, 280, 46,  5,  8],
+  ["Sato / Sattu drink",               "1 glass (200ml)",    1, 140, 26,  6,  2],
+  ["Ponk / Green sorghum",             "½ katori (50g)",     0,  55, 11,  2,  1],
+  ["Ponk vada",                        "3 pieces (90g)",     1, 220, 28,  6, 10],
+  ["Osaman / Clear dal water",         "1 cup (200ml)",      1,  60, 10,  3,  1],
+
+  // ── Main Gujarati Meals ───────────────────────────────────────────
+  ["Gujarati thali (basic)",           "1 thali",            30, 850,120, 28, 28],
+  ["Gujarati thali (full)",            "1 thali",            50,1100,155, 35, 38],
+  ["Dal-bhaat-rotli-shaak (basic)",    "1 meal (400g)",      20, 680, 96, 24, 20],
+
+  // ── TEA & HOT BEVERAGES (all variations) ─────────────────────────
+  ["Chai — milk only, no sugar",       "1 cup (150ml)",      1,  35,  3,  2,  2],
+  ["Chai — milk + 1 tsp sugar",        "1 cup (150ml)",      1,  55,  8,  2,  2],
+  ["Chai — milk + 2 tsp sugar",        "1 cup (150ml)",      1,  71, 13,  2,  2],
+  ["Chai — strong milk tea (cutting)", "1 cutting (100ml)",  1,  45,  6,  2,  2],
+  ["Masala chai — milk + sugar",       "1 cup (150ml)",      2,  65, 10,  2,  2],
+  ["Masala chai — no sugar",           "1 cup (150ml)",      2,  40,  4,  2,  2],
+  ["Ginger chai — milk + sugar",       "1 cup (150ml)",      2,  68, 11,  2,  2],
+  ["Elaichi chai — milk + sugar",      "1 cup (150ml)",      1,  65, 10,  2,  2],
+  ["Green tea — plain, no sugar",      "1 cup (200ml)",      0,   2,  0,  0,  0],
+  ["Green tea — with honey",           "1 cup (200ml)",      0,  25,  6,  0,  0],
+  ["Green tea — with lemon",           "1 cup (200ml)",      0,   5,  1,  0,  0],
+  ["Black tea — no milk, no sugar",    "1 cup (200ml)",      0,   2,  0,  0,  0],
+  ["Black tea — with sugar only",      "1 cup (200ml)",      0,  16,  4,  0,  0],
+  ["Herbal tea / Kadha",               "1 cup (200ml)",      0,  10,  2,  0,  0],
+  ["Tulsi tea",                        "1 cup (200ml)",      1,   5,  1,  0,  0],
+  ["Turmeric milk / Haldi doodh",      "1 glass (200ml)",    0, 130, 12,  6,  7],
+  ["Coffee — black, no sugar",         "1 cup (150ml)",      0,   5,  1,  0,  0],
+  ["Coffee — with milk, no sugar",     "1 cup (150ml)",      0,  45,  4,  2,  2],
+  ["Coffee — with milk + sugar",       "1 cup (150ml)",      0,  65,  9,  2,  2],
+  ["Filter coffee — South Indian",     "1 cup (150ml)",      0,  60,  8,  2,  2],
+  ["Hot chocolate / Cocoa",            "1 cup (200ml)",      1, 150, 22,  6,  5],
+
+  // ── COLD DRINKS & JUICES ──────────────────────────────────────────
+  ["Chaas / Buttermilk (salted)",      "1 glass (200ml)",    0,  40,  5,  3,  1],
+  ["Chaas / Buttermilk (sweet)",       "1 glass (200ml)",    0,  75, 12,  3,  1],
+  ["Lassi (sweet, full fat)",          "1 glass (250ml)",    0, 220, 32,  7,  7],
+  ["Lassi (salted / namkeen)",         "1 glass (250ml)",    0, 130, 14,  6,  5],
+  ["Mango lassi",                      "1 glass (250ml)",    4, 260, 40,  7,  7],
+  ["Aam ras (mango pulp)",             "½ katori (100ml)",   5, 100, 24,  1,  0],
+  ["Fresh lime soda (sweet)",          "1 glass (250ml)",    0,  80, 20,  0,  0],
+  ["Fresh lime water (plain)",         "1 glass (250ml)",    0,  10,  2,  0,  0],
+  ["Jal jeera",                        "1 glass (200ml)",    2,  30,  7,  1,  0],
+  ["Rose sharbat / Rooh afza",         "1 glass (200ml)",    0, 100, 25,  0,  0],
+  ["Thandai",                          "1 glass (200ml)",    1, 180, 24,  5,  7],
+
+  // ── GUJARATI SWEETS & DESSERTS ────────────────────────────────────
+  ["Basundi (full fat)",               "1 bowl (100g)",      1, 220, 28,  9,  9],
+  ["Shrikhand (plain)",                "1 bowl (80g)",       0, 200, 26,  6,  8],
+  ["Shrikhand (kesar-elaichi)",        "1 bowl (80g)",       0, 210, 28,  6,  8],
+  ["Amrakhand (mango shrikhand)",      "1 bowl (80g)",       4, 200, 28,  5,  8],
+  ["Ghevar",                           "1 piece (50g)",      1, 230, 30,  3, 12],
+  ["Malpua",                           "2 pieces (80g)",     1, 290, 38,  5, 14],
+  ["Gulab jamun (small)",              "2 pieces (60g)",     0, 195, 28,  4,  8],
+  ["Gulab jamun (large)",              "1 piece (50g)",      0, 175, 24,  3,  7],
+  ["Rasgulla",                         "2 pieces (100g)",    0, 186, 30,  5,  4],
+  ["Rasmalai",                         "2 pieces (100g)",    0, 210, 26,  8,  8],
+  ["Jalebi (fresh)",                   "4 pieces (60g)",     0, 230, 40,  2,  7],
+  ["Imarti",                           "1 piece (40g)",      0, 160, 26,  2,  6],
+  ["Kalakand",                         "1 piece (50g)",      0, 185, 24,  6,  8],
+  ["Kopra pak",                        "1 piece (40g)",      0, 220, 22,  3, 14],
+  ["Peda (plain)",                     "1 piece (30g)",      0, 130, 18,  3,  5],
+  ["Barfi (plain milk)",               "1 piece (30g)",      0, 135, 14,  4,  7],
+  ["Barfi (kaju / cashew)",            "1 piece (30g)",      0, 155, 16,  3,  9],
+  ["Churma (coarse)",                  "1 katori (60g)",     1, 290, 38,  5, 14],
+  ["Adadiya pak",                      "1 piece (40g)",      2, 230, 24,  7, 13],
+  ["Methi pak",                        "1 piece (40g)",    135, 220, 22,  6, 13],
+  ["Doodh pak / Kheer (rice)",         "1 katori (150g)",    1, 250, 40,  7,  7],
+  ["Srikhand with puri (combo)",       "1 serving (180g)",   1, 480, 60, 10, 22],
+
+  // ── COMMON ADDITIONAL INDIAN ITEMS ───────────────────────────────
+  ["Sprouts salad (moong)",            "1 katori (100g)",    8,  60, 10,  5,  1],
+  ["Sprouts salad with lemon",         "1 katori (100g)",    8,  65, 11,  5,  1],
+  ["Corn (sweet, boiled)",             "1 cob (100g)",       0,  86, 19,  3,  1],
+  ["Corn chaat",                       "1 bowl (150g)",      3, 180, 30,  5,  5],
+  ["Pav bhaji (full plate)",           "1 plate (300g)",    35, 520, 72, 12, 20],
+  ["Misal pav",                        "1 plate (250g)",    18, 420, 60, 16, 14],
+  ["Idli (2 pieces) with sambar",      "1 serving (200g)",   8, 210, 38,  8,  2],
+  ["Medu vada",                        "2 pieces (80g)",     2, 220, 28,  7,  9],
+  ["Uttapam (plain)",                  "1 medium (100g)",    2, 155, 26,  5,  4],
+  ["Uttapam (with veg)",               "1 medium (120g)",   14, 175, 28,  6,  5],
+  ["Curd rice",                        "1 katori (200g)",    1, 220, 38,  7,  4],
+  ["Rajma chawal (1 plate)",           "1 plate (350g)",     8, 460, 74, 18,  7],
+  ["Chole bhature (1 plate)",          "1 plate (280g)",    12, 620, 82, 18, 26],
+  ["Paneer tikka",                     "4 pieces (100g)",    3, 250, 10, 16, 17],
+  ["Paneer butter masala",             "1 katori (200g)",    4, 420, 18, 18, 32],
+  ["Matar paneer",                     "1 katori (200g)",   26, 380, 18, 18, 24],
+  ["Palak paneer",                     "1 katori (200g)",  450, 340, 10, 18, 26],
+  ["Kadai paneer",                     "1 katori (200g)",   12, 380, 16, 18, 28],
+  ["Shahi paneer",                     "1 katori (200g)",    5, 420, 18, 18, 32],
+  ["Paneer paratha",                   "1 medium (100g)",    3, 310, 36, 12, 14],
+  ["Aloo paratha",                     "1 medium (100g)",    3, 270, 36,  6, 12],
+  ["Gobi paratha",                     "1 medium (100g)",   12, 250, 34,  6, 11],
+  ["Sambar",                           "1 katori (150g)",   18, 100, 16,  5,  2],
+  ["Coconut chutney",                  "2 tbsp (30g)",       0, 100,  4,  1, 10],
+  ["Tomato chutney",                   "2 tbsp (30g)",       6,  35,  6,  1,  1],
+  ["Mint-coriander chutney",           "2 tbsp (30g)",      60,  20,  3,  1,  1],
+  ["Tamarind chutney",                 "1 tbsp (20g)",       1,  37,  9,  0,  0],
+  ["Pickle / Achar (mixed)",           "1 tsp (10g)",        2,  29,  3,  0,  2],
+  ["Papad / Papadum (roasted)",        "1 piece (10g)",      1,  37,  6,  2,  1],
+  ["Papad (fried)",                    "1 piece (10g)",      1,  55,  6,  2,  3],
 ];
 
 // Historical seed data for first-time import
@@ -1654,6 +1894,38 @@ function clearFoodForm() {
   document.getElementById('selectedFoodDetails').style.display='none';
   document.getElementById('addFoodBtn').disabled=true;
   document.getElementById('foodQty').value=1;
+}
+
+async function addCustomFood() {
+  const name    = document.getElementById('customName')?.value.trim();
+  const serving = document.getElementById('customServing')?.value.trim() || '1 serving';
+  const vk      = parseFloat(document.getElementById('customVK')?.value)||0;
+  const kcal    = parseFloat(document.getElementById('customKcal')?.value)||0;
+  const carb    = parseFloat(document.getElementById('customCarb')?.value)||0;
+  const protein = parseFloat(document.getElementById('customProtein')?.value)||0;
+  const fat     = parseFloat(document.getElementById('customFat')?.value)||0;
+  const meal    = document.getElementById('mealType')?.value||'Snack';
+  const date    = document.getElementById('foodDate')?.value||today();
+
+  if (!name) { alert('Please enter a food name.'); return; }
+
+  const ts = Date.now().toString();
+  const entry = { date, name:`${name} (${serving})`, meal, qty:1, unit:'serving',
+                  vk, kcal, carb, protein, fat, ts, custom:true };
+  try {
+    await api({action:'addFood', ...entry});
+    foodLog.push(entry);
+    document.getElementById('customName').value='';
+    document.getElementById('customServing').value='';
+    document.getElementById('customVK').value='0';
+    document.getElementById('customKcal').value='';
+    document.getElementById('customCarb').value='';
+    document.getElementById('customProtein').value='';
+    document.getElementById('customFat').value='';
+    document.getElementById('addFoodMsg').textContent=`✓ Added ${name}`;
+    setTimeout(()=>{ const el=document.getElementById('addFoodMsg'); if(el) el.textContent=''; },2500);
+    renderAll();
+  } catch(e) { alert('Save failed: '+e.message); }
 }
 
 // ═══════════════════════════════════════════════
