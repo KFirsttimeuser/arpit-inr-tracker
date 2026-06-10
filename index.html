@@ -1312,10 +1312,10 @@ async function loadAll() {
   try {
     const data = await api({action:'getAll'});
     const sheetINR = (data.inrLog||[]).filter(r=>r[0]).map(r=>({
-      date:String(r[0]), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
+      date:cleanDate(String(r[0])), val:parseFloat(r[1]), dose:r[2]||null, notes:r[3]||'', ts:String(r[4]||r[0])
     }));
     const sheetFood = (data.foodLog||[]).filter(r=>r[0]).map(r=>({
-      date:String(r[0]),name:r[1],meal:r[2],qty:parseFloat(r[3]),unit:r[4],
+      date:cleanDate(String(r[0])),name:r[1],meal:r[2],qty:parseFloat(r[3]),unit:r[4],
       vk:parseFloat(r[5]),kcal:parseFloat(r[6]),carb:parseFloat(r[7]),
       protein:parseFloat(r[8]),fat:parseFloat(r[9]),ts:String(r[10])
     }));
@@ -1346,10 +1346,10 @@ async function loadAll() {
     console.error('Load failed — showing cached data:', e);
     const local = JSON.parse(localStorage.getItem('inrOfflineData') || '{"inrLog":[],"foodLog":[]}');
     if (inrLog.length === 0) inrLog = local.inrLog.map(r=>({
-      date:String(r.date), val:parseFloat(r.val), dose:r.dose||null, notes:r.notes||'', ts:String(r.ts||r.date)
+      date:cleanDate(String(r.date)), val:parseFloat(r.val), dose:r.dose||null, notes:r.notes||'', ts:String(r.ts||r.date)
     })).sort((a,b)=>a.date.localeCompare(b.date));
     if (foodLog.length === 0) foodLog = local.foodLog.map(r=>({
-      date:String(r.date),name:r.name,meal:r.meal,qty:parseFloat(r.qty),unit:r.unit,
+      date:cleanDate(String(r.date)),name:r.name,meal:r.meal,qty:parseFloat(r.qty),unit:r.unit,
       vk:parseFloat(r.vk)||0,kcal:parseFloat(r.kcal)||0,carb:parseFloat(r.carb)||0,
       protein:parseFloat(r.protein)||0,fat:parseFloat(r.fat)||0,ts:String(r.ts),sample:r.sample||false
     }));
@@ -1854,7 +1854,7 @@ function renderHistory() {
     const arrow=prev?(e.val>prev.val?'↑':e.val<prev.val?'↓':'→'):'';
     const color=e.val<settings.targetLow?'#b45309':e.val>settings.targetHigh?'#b91c1c':'#065f46';
     return `<div class="history-item">
-      <span class="history-date">${e.date}</span>
+      <span class="history-date">${fmtDate(e.date)}</span>
       <span class="history-inr" style="color:${color}">${e.val.toFixed(1)}</span>
       <span class="history-warf">${e.dose?'💊 '+e.dose+'mg':''}</span>
       <span style="color:${color};font-size:16px">${arrow}</span>
@@ -1873,12 +1873,51 @@ function setRange(days, btn) {
   chartDays = days;
   document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  // Set from/to inputs
   const to = new Date();
-  const from = new Date(); from.setDate(from.getDate() - (days === 99999 ? 3650 : days));
-  document.getElementById('chartFrom').value = days === 99999 ? (inrLog[0]?.date || toDateStr(from)) : toDateStr(from);
+  const sorted = [...inrLog].sort((a,b)=>a.date.localeCompare(b.date));
+  if (days === 99999) {
+    // All — use actual earliest reading date
+    document.getElementById('chartFrom').value = sorted.length ? sorted[0].date : toDateStr(new Date(Date.now()-365*24*3600000));
+  } else {
+    const from = new Date(); from.setDate(from.getDate() - days);
+    document.getElementById('chartFrom').value = toDateStr(from);
+  }
   document.getElementById('chartTo').value = toDateStr(to);
   renderCharts();
+}
+
+// Normalise any date string to YYYY-MM-DD — handles ISO timestamps from Google Sheets
+// e.g. "2025-08-11T05:00:00.000Z" → "2025-08-11", "08/11/2025" → "2025-08-11"
+function cleanDate(s) {
+  if (!s) return '';
+  s = String(s).trim();
+  // Already clean
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ISO with time: "2025-08-11T05:00:00.000Z"
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.slice(0,10);
+  // MM/DD/YYYY from some Sheets exports
+  const mm = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (mm) return `${mm[3]}-${String(mm[1]).padStart(2,'0')}-${String(mm[2]).padStart(2,'0')}`;
+  // Try parsing as Date but force UTC midnight
+  try {
+    const d = new Date(s);
+    if (!isNaN(d)) return d.toISOString().slice(0,10);
+  } catch(e) {}
+  return s.slice(0,10);
+}
+
+// Format "2025-08-11" → "Aug 11" cleanly, no timezone issues
+function fmtDate(dateStr) {
+  if (!dateStr) return '';
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[m-1] + ' ' + d;
+}
+function fmtDateShort(dateStr) {
+  if (!dateStr) return '';
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[m-1].slice(0,3) + ' ' + String(d).padStart(2,'0');
 }
 
 function renderCharts() {
@@ -1973,11 +2012,11 @@ function renderINRChart() {
   for (let i=0; i<data.length; i+=step) {
     const d = data[i];
     const pct = data.length===1 ? 0 : (i/(data.length-1))*100;
-    xLabels.push(`<span style="position:absolute;left:${pct}%;transform:translateX(-50%)">${d.date.slice(5)}</span>`);
+    xLabels.push(`<span style="position:absolute;left:${pct}%;transform:translateX(-50%)">${fmtDate(d.date)}</span>`);
   }
   // Always include last
   const lastD = data[data.length-1];
-  xLabels.push(`<span style="position:absolute;right:0">${lastD.date.slice(5)}</span>`);
+  xLabels.push(`<span style="position:absolute;right:0">${fmtDate(lastD.date)}</span>`);
   xAxisEl.style.position='relative'; xAxisEl.style.height='16px';
   xAxisEl.innerHTML = xLabels.join('');
 
@@ -2017,7 +2056,7 @@ function renderINRChart() {
       tip.style.display='block';
       tip.style.left = Math.min(closest.x, W-120)+'px';
       tip.style.top = (closest.y-40)+'px';
-      tip.innerHTML = `<span style="color:${color}">●</span> <strong>${closest.d.val}</strong> &nbsp;${closest.d.date}${closest.d.dose?'&nbsp;💊'+closest.d.dose+'mg':''}`;
+      tip.innerHTML = `<span style="color:${color}">●</span> <strong>${closest.d.val}</strong> &nbsp;${fmtDate(closest.d.date)}${closest.d.dose?'&nbsp;💊'+closest.d.dose+'mg':''}${closest.d.notes?'<br><span style="font-size:10px;opacity:.8">'+closest.d.notes.slice(0,50)+'</span>':''}`;
     } else { tip.style.display='none'; }
   };
   c1.onmouseleave = () => { document.getElementById('inrTooltip').style.display='none'; };
@@ -2054,7 +2093,7 @@ function renderVKChart() {
   // x-axis date labels via DOM
   const xAxisEl = document.getElementById('vkXAxis');
   if (xAxisEl) {
-    xAxisEl.innerHTML = days.map((d,i)=>`<span>${d.slice(5)}</span>`).join('');
+    xAxisEl.innerHTML = days.map((d,i)=>`<span>${fmtDate(d)}</span>`).join('');
   }
   // y-axis
   const yEl = document.getElementById('vkYAxis');
@@ -2228,7 +2267,7 @@ function populateComparisonSelects() {
   const selB = document.getElementById('compareB');
   if (!selA || !selB) return;
   const sorted = [...inrLog].sort((a,b)=>b.date.localeCompare(a.date));
-  const opts = sorted.map(r=>`<option value="${r.ts}">${r.date} — INR ${r.val}</option>`).join('');
+  const opts = sorted.map(r=>`<option value="${r.ts}">${fmtDate(r.date)} — INR ${r.val}${r.dose?' ('+r.dose+'mg)':''}</option>`).join('');
   selA.innerHTML = opts;
   selB.innerHTML = opts;
   // Default: compare last two readings
@@ -2285,14 +2324,14 @@ function runComparison() {
   el.innerHTML = `
     <div style="display:flex;gap:12px;align-items:center;padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);margin-top:4px;flex-wrap:wrap">
       <div style="text-align:center;flex:1;min-width:80px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${before.date}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${fmtDate(before.date)}</div>
         <div style="font-family:var(--mono);font-size:22px;font-weight:600">${before.val}</div>
         <div style="font-size:11px;color:var(--muted)">INR Before</div>
         ${vkBefore>0?`<div style="font-size:11px;color:#10b981;margin-top:4px">🥬 ${Math.round(vkBefore)} mcg VK</div>`:''}
       </div>
       <div style="font-size:28px;color:${color};font-weight:700;flex-shrink:0">${arrow} ${Math.abs(diff).toFixed(1)}</div>
       <div style="text-align:center;flex:1;min-width:80px">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${after.date}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${fmtDate(after.date)}</div>
         <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:${color}">${after.val}</div>
         <div style="font-size:11px;color:var(--muted)">INR After</div>
         ${vkAfter>0?`<div style="font-size:11px;color:#10b981;margin-top:4px">🥬 ${Math.round(vkAfter)} mcg VK</div>`:''}
@@ -2422,7 +2461,7 @@ function renderOverlayChart() {
   if(xAxisEl){
     const step=Math.max(1,Math.floor(points.length/5));
     const labels=[];
-    for(let i=0;i<points.length;i+=step) labels.push(`<span>${points[i].date.slice(5)}</span>`);
+    for(let i=0;i<points.length;i+=step) labels.push(`<span>${fmtDate(points[i].date)}</span>`);
     xAxisEl.innerHTML=labels.join('');
   }
 
@@ -2449,10 +2488,15 @@ function switchTab(id) {
   document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
   if (id==='history') {
     const fromEl = document.getElementById('chartFrom');
+    // Default to ALL data so full history shows on first open
     if (fromEl && !fromEl.value) {
-      const from = new Date(); from.setDate(from.getDate()-90);
-      fromEl.value = toDateStr(from);
+      const sorted = [...inrLog].sort((a,b)=>a.date.localeCompare(b.date));
+      fromEl.value = sorted.length ? sorted[0].date : toDateStr(new Date(Date.now() - 365*24*3600000));
       document.getElementById('chartTo').value = toDateStr(new Date());
+      // Set 'All' button as active
+      document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('active'));
+      const allBtn = document.querySelector('.range-btn:last-child');
+      if (allBtn) allBtn.classList.add('active');
     }
     renderCharts();
   }
